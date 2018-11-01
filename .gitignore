@@ -1,0 +1,9 @@
+/node_modules
+package-lock.json
+
+/frontend/etc
+/frontend/node_modules/
+/frontend/package-lock.json
+
+/backend/config/key_dev.js
+/backend/config/client_dev.js

@@ -1,0 +1,294 @@
+#root {
+  height: 100%;
+}
+
+p,
+ul,
+li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  position: relative;
+  flex-direction: column;
+}
+
+.header,
+.footer {
+  flex: 0 0 auto;
+}
+
+.main {
+  flex: 1 1 auto;
+}
+
+.overlay {
+  position: absolute;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  &__inner {
+    margin: auto;
+  }
+}
+
+.body {
+  margin: 5px 0;
+  border: 1px solid #333;
+  padding: 15px;
+  border-radius: 10px;
+  &:nth-child(2n) {
+    background: rgba(0, 0, 0, 0.1);
+  }
+}
+
+.seeMore {
+  padding: 3px 10px;
+  border-radius: 5px;
+  border: 1px solid #333;
+  cursor: pointer;
+}
+
+// HOME PAGE
+.homepage {
+  position: relative;
+  background: radial-gradient(circle rgba(113, 152, 169, 0.8) 0%, #fff 60%);
+  &__bg {
+    max-width: 70%;
+    background-size: cover;
+    margin: auto;
+    display: block;
+    opacity: 0.2;
+  }
+  &__textblock {
+    position: absolute;
+    width: 100%;
+    top: 40%;
+  }
+  &__title {
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    text-align: center;
+  }
+  &__subtitle {
+    font-size: 20px;
+    text-align: center;
+    letter-spacing: 3px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  }
+}
+
+// LOGIN
+.login {
+  &__dropdown {
+    padding: 15px;
+    right: 0;
+    left: auto;
+    width: 300px;
+  }
+}
+
+.logout {
+  &__link {
+    cursor: pointer;
+    &:hover {
+      color: red !important ;
+    }
+  }
+}
+
+// Labels
+.labels {
+  &__title {
+    cursor: pointer;
+  }
+  &__list {
+    list-style: none;
+    padding: 0;
+  }
+  &__item {
+    border: 1px solid #333;
+    display: inline-block;
+    margin: 3px;
+    font-size: 11px;
+    padding: 3px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    &:hover {
+      background: #17a2b8;
+      color: #fff;
+      transition: all 0.4s;
+    }
+  }
+  &__number {
+    border-radius: 30px;
+    padding: 3px 15px;
+    display: inline-block;
+    font-size: 12px;
+    border: 1px solid #333;
+  }
+  &__toBlackList {
+    &:hover {
+      transform: scale(1.2);
+      text-shadow: 0 0 7px rgba(0, 0, 0, 0.8);
+    }
+  }
+}
+
+// Messages
+.messages {
+  position: absolute;
+  z-index: 1000000;
+  width: 100%;
+  left: 0;
+  top: 70px;
+  text-align: center;
+  z-index: 0;
+  &__item {
+    display: inline-block;
+    border-radius: 20px;
+    padding: 5px 20px;
+    max-width: 60%;
+  }
+}
+
+.alert {
+  margin: 20px auto;
+  width: 50%;
+  text-align: center;
+  z-index: 10000;
+}
+
+// settings
+.settings {
+  &__title {
+    padding: 5px 0;
+  }
+}
+
+// db switcher
+.db {
+  display: flex;
+  margin: 30px 0;
+  justify-content: flex-end;
+  &__wrapper {
+    display: flex;
+  }
+  &__text {
+    font-size: 12px;
+    &_active {
+      color: #4b91ec;
+    }
+  }
+  &__switcher {
+    margin: 0 10px;
+    background: #ee867e;
+    border: 2px solid #999;
+    border-radius: 40px;
+    position: relative;
+    width: 40px;
+    height: 20px;
+    cursor: pointer;
+    overflow: hidden;
+  }
+  &__point {
+    transition: all 0.3s;
+    width: 16px;
+    height: 16px;
+    top: 0;
+    left: 0px;
+    border-radius: 50%;
+    position: absolute;
+    background: #999;
+    &::after {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      background: #d93025;
+      border-radius: 50%;
+    }
+    &::before {
+      content: "";
+      position: absolute;
+      width: 30px;
+      height: 16px;
+      top: 0;
+      left: -20px;
+      background: #94bdf1;
+    }
+    &_active {
+      left: 20px;
+      &::after {
+        content: "";
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background: #4b91ec;
+        border-radius: 50%;
+      }
+    }
+  }
+}
+
+// statistic
+.statistic {
+  &__pieItem {
+    margin: 20px 0;
+  }
+  &__title {
+    font-size: 12px;
+  }
+}
+
+.list-group-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0;
+  cursor: pointer;
+  &:hover {
+    background: #4b91ec;
+    color: #fff;
+    .list-group-item__num {
+      color: #272727;
+      font-weight: bold;
+    }
+  }
+  &__camp {
+    word-wrap: break-word;
+    word-break: break-all;
+    padding: 7px 10px;
+    font-size: 12px;
+    width: calc(100% - 50px);
+  }
+  &__num {
+    display: flex;
+    background: #ececec;
+    text-align: center;
+    width: 50px;
+  }
+  &__vertical {
+    margin: auto;
+  }
+}
+
+.account {
+  &__td {
+    align-items: center;
+  }
+  &__img {
+    border-radius: 50%;
+    width: 40px;
+  }
+}
