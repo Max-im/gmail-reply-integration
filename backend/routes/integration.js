@@ -18,8 +18,8 @@ const getEmailLabelAndBody = require("./utils/gmail/getEmailLabelAndBody");
 // @access  Public
 router.get("/test", (req, res) => res.json({ integration: "success" }));
 
-const progressIntegration = { progress: 0, status: "Prepare..." };
-let isLaunched = false;
+// const progressIntegration = { progress: 0, status: "Prepare..." };
+// let isLaunched = false;
 
 // @route   POST integration/launch
 // @desc    Get DB data
@@ -94,16 +94,16 @@ router.post(
   }
 );
 
-// @route   GET integration/progress
-// @desc    Get progress
-// @access  Private
-router.get(
-  "/progress",
-  passport.authenticate("jwt", { session: false }),
-  (req, res) => {
-    res.json(progressIntegration);
-  }
-);
+// // @route   GET integration/progress
+// // @desc    Get progress
+// // @access  Private
+// router.get(
+//   "/progress",
+//   passport.authenticate("jwt", { session: false }),
+//   (req, res) => {
+//     res.json(progressIntegration);
+//   }
+// );
 
 // @route   GET integration/sheets/:fileId
 // @desc    Get File Sheets
@@ -126,27 +126,104 @@ router.get(
   }
 );
 
-// @route   POST integration/savedb
-// @desc    save email info in db
-// @access  Private
-// router.post(
-//   "/savedb",
-//   passport.authenticate("jwt", { session: false }),
-//   (req, res) => {
-//     const { email, labels, body } = req.body;
+// ===========================================================
+// FRONTEND LOGIC
+// ===========================================================
 
-//     Email.findOne({ email }).then(oneEmail => {
-//       if (oneEmail) {
-//         Email.findOneAndRemove({ email }).then(oneEmail => {
-//           const newEmail = new Email({ email, labels, body });
-//           newEmail.save().then(oneEmail => res.json(oneEmail));
-//         });
-//       } else {
-//         const newEmail = new Email({ email, labels, body });
-//         newEmail.save().then(oneEmail => res.json(oneEmail));
-//       }
-//     });
-//   }
-// );
+// @route   POST integration/get-emails-list
+// @desc    Get Emails List
+// @access  Private
+router.post(
+  "/get-emails-list",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    try {
+      const { fileId, sheetName } = req.body;
+      // get accounts from db
+      const authArr = await getDbAccounts();
+
+      // get target emails from SS
+      // @return - arr with emails and number of the last column
+      oAuth2Client.setCredentials(authArr[0]);
+      const { emailArr, tabLen } = await getSheetData(
+        oAuth2Client,
+        fileId,
+        sheetName
+      );
+      res.json({ emailArr, tabLen });
+    } catch (err) {
+      console.log(err);
+      res.status(err.error.code).json(err.error.message);
+    }
+  }
+);
+
+// @route   POST integration/get-email-data
+// @desc    Get Each email data
+// @access  Private
+router.post(
+  "/get-email-data",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    try {
+      // receive data from frontend
+      const { fileId, sheetName, fromDb, email } = req.body;
+      let dbEmails;
+
+      // get accounts from db
+      const authArr = await getDbAccounts();
+
+      // get emails from db
+      if (fromDb) {
+        dbEmails = await getDbEmails();
+      }
+
+      // get Labels and bodies
+      const emailData = await getEmailLabelAndBody(
+        authArr,
+        email,
+        oAuth2Client,
+        dbEmails,
+        fromDb
+      );
+
+      res.json(emailData);
+    } catch (err) {
+      console.log(err);
+      res.status(err.error.code).json(err.error.message);
+    }
+  }
+);
+
+// @route   POST integration/output-data
+// @desc    Save data in ss
+// @access  Private
+router.post(
+  "/output-data",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    try {
+      // receive data from frontend
+      const { fileId, sheetName, tabLen, result } = req.body;
+
+      // get accounts from db
+      const authArr = await getDbAccounts();
+
+      oAuth2Client.setCredentials(authArr[0]);
+      const stat = await updateSheet(
+        oAuth2Client,
+        result,
+        fileId,
+        sheetName,
+        tabLen
+      );
+
+      res.json(stat);
+    } catch (err) {
+      console.log(err);
+      res.status(err.error.code).json(err.error.message);
+    }
+  }
+);
 
 module.exports = router;

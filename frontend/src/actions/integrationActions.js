@@ -1,4 +1,5 @@
 import axios from "axios";
+import asyncLoop from "node-async-loop";
 
 import {
   GET_SHEETS_NAMES,
@@ -8,13 +9,9 @@ import {
   SUCCESS_EMIT
 } from "./constants";
 
-const httpClient = axios.create();
-httpClient.defaults.timeout = 1000 * 60 * 60 * 10;
-let interval;
-
 // Get Sheets Names
 export const onGetFileSheets = fileId => dispatch => {
-  httpClient
+  axios
     .get(`/integration/sheets/${fileId}`)
     .then(res => {
       dispatch({ type: GET_SHEETS_NAMES, payload: res.data });
@@ -22,41 +19,6 @@ export const onGetFileSheets = fileId => dispatch => {
     .catch(err => {
       dispatch({ type: ERROR_EMIT, payload: err.response.data });
     });
-};
-
-export const onProgressCheck = () => dispatch => {
-  interval = setInterval(() => {
-    httpClient
-      .get("/integration/progress")
-      .then(res => {
-        const { progress, status } = res.data;
-        if (status === "Done") {
-          dispatch({
-            type: UPDATE_PROGRESS_BAR,
-            payload: { status: false, progress }
-          });
-          clearInterval(interval);
-          dispatch({
-            type: SUCCESS_EMIT,
-            payload: "Integration done success!"
-          });
-          dispatch({ type: SPINNER_TOGGLE, payload: false });
-        } else {
-          dispatch({
-            type: UPDATE_PROGRESS_BAR,
-            payload: { status, progress }
-          });
-        }
-      })
-      .catch(err => {
-        if (err.response && err.response.data) {
-          dispatch({ type: SPINNER_TOGGLE, payload: false });
-          dispatch({ type: ERROR_EMIT, payload: err.response.data });
-        } else {
-          Object.keys(err).map(key => console.log(key, err[key]));
-        }
-      });
-  }, 1000);
 };
 
 // Hide Sheet Names
@@ -74,21 +36,48 @@ export const integrationLaunch = sheetData => dispatch => {
     type: UPDATE_PROGRESS_BAR,
     payload: { status: false, progress: false }
   });
-  const firstTime = Date.now();
 
-  httpClient
-    .post("/integration/launch", sheetData)
+  axios
+    .post("/integration/get-emails-list", sheetData)
     .then(res => {
-      // hide spinner
-      dispatch({ type: SPINNER_TOGGLE, payload: false });
-      dispatch({
-        type: UPDATE_PROGRESS_BAR,
-        payload: { status: false, progress: false }
-      });
-      clearInterval(interval);
+      const { emailArr, tabLen } = res.data;
+      const result = [];
+      asyncLoop(
+        emailArr,
+        (email, nextEmail) => {
+          axios
+            .post("/integration/get-email-data", { ...sheetData, email })
+            .then(res => {
+              result.push(res.data);
+              dispatch({
+                type: UPDATE_PROGRESS_BAR,
+                payload: {
+                  status: `Checked ${result.length} from ${
+                    emailArr.length
+                  } emails.`,
+                  progress: result.length / emailArr.length
+                }
+              });
+              nextEmail();
+            })
+            .catch(err => console.log(err.response.data));
+        },
+        () => {
+          // output data
+          axios
+            .post("/integration/output-data", { result, tabLen, ...sheetData })
+            .then(res => {
+              dispatch({ type: SPINNER_TOGGLE, payload: true });
+              dispatch({
+                type: SUCCESS_EMIT,
+                payload: "Integration done success!"
+              });
+            })
+            .catch(err => console.log(err.response.data));
+        }
+      );
 
       // success
-      dispatch({ type: SUCCESS_EMIT, payload: "Integration done success!" });
     })
     .catch(err => {
       if (err.response && err.response.data) {
@@ -100,7 +89,6 @@ export const integrationLaunch = sheetData => dispatch => {
         }
       } else if (err.code === "ECONNABORTED") {
         const lastTime = Date.now();
-        console.log(lastTime - firstTime, "timeout axios finish");
       } else {
         Object.keys(err).map(key => console.log(key, err[key]));
       }

@@ -10,8 +10,7 @@ import SourceToggle from "./SourceToggle";
 import {
   onGetFileSheets,
   onHideSheetsNames,
-  integrationLaunch,
-  onProgressCheck
+  integrationLaunch
 } from "../../actions/integrationActions";
 
 class Integration extends Component {
@@ -59,7 +58,6 @@ class Integration extends Component {
     e.preventDefault();
     const { fileId, sheetName, fromDb } = this.state;
     this.props.integrationLaunch({ fileId, sheetName, fromDb });
-    this.props.onProgressCheck();
   }
 
   render() {
@@ -156,7 +154,6 @@ Integration.propTypes = {
   integration: PropTypes.object.isRequired,
   onGetFileSheets: PropTypes.func.isRequired,
   onHideSheetsNames: PropTypes.func.isRequired,
-  onProgressCheck: PropTypes.func.isRequired,
   integrationLaunch: PropTypes.func.isRequired
 };
 
@@ -169,7 +166,6 @@ export default connect(
   {
     onGetFileSheets,
     onHideSheetsNames,
-    integrationLaunch,
-    onProgressCheck
+    integrationLaunch
   }
 )(Integration);
