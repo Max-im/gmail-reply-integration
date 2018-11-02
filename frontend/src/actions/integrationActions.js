@@ -92,7 +92,7 @@ export const integrationLaunch = sheetData => dispatch => {
     })
     .catch(err => {
       if (err.response && err.response.data) {
-        console.log(err.response.data);
+        console.log(err.response.data.match(/<!DOCTYPE html>/));
         dispatch({ type: SPINNER_TOGGLE, payload: false });
         dispatch({ type: ERROR_EMIT, payload: err.response.data });
       } else if (err.code === "ECONNABORTED") {
