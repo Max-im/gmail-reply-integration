@@ -8,11 +8,13 @@ import {
   SUCCESS_EMIT
 } from "./constants";
 
+const httpClient = axios.create();
+httpClient.defaults.timeout = 1000 * 60 * 60 * 10;
 let interval;
 
 // Get Sheets Names
 export const onGetFileSheets = fileId => dispatch => {
-  axios
+  httpClient
     .get(`/integration/sheets/${fileId}`)
     .then(res => {
       dispatch({ type: GET_SHEETS_NAMES, payload: res.data });
@@ -24,17 +26,21 @@ export const onGetFileSheets = fileId => dispatch => {
 
 export const onProgressCheck = () => dispatch => {
   interval = setInterval(() => {
-    axios
+    httpClient
       .get("/integration/progress")
       .then(res => {
-        const { done, status, checkLength } = res.data;
-        const progress = done / checkLength;
+        const { progress, status } = res.data;
         if (status === "Done") {
           dispatch({
             type: UPDATE_PROGRESS_BAR,
-            payload: { status: false, progress: false }
+            payload: { status: false, progress }
           });
           clearInterval(interval);
+          dispatch({
+            type: SUCCESS_EMIT,
+            payload: "Integration done success!"
+          });
+          dispatch({ type: SPINNER_TOGGLE, payload: false });
         } else {
           dispatch({
             type: UPDATE_PROGRESS_BAR,
@@ -42,7 +48,14 @@ export const onProgressCheck = () => dispatch => {
           });
         }
       })
-      .catch(err => console.log(err.response.data));
+      .catch(err => {
+        if (err.response && err.response.data) {
+          dispatch({ type: SPINNER_TOGGLE, payload: false });
+          dispatch({ type: ERROR_EMIT, payload: err.response.data });
+        } else {
+          Object.keys(err).map(key => console.log(key, err[key]));
+        }
+      });
   }, 1000);
 };
 
@@ -61,8 +74,9 @@ export const integrationLaunch = sheetData => dispatch => {
     type: UPDATE_PROGRESS_BAR,
     payload: { status: false, progress: false }
   });
+  const firstTime = Date.now();
 
-  axios
+  httpClient
     .post("/integration/launch", sheetData)
     .then(res => {
       // hide spinner
@@ -77,9 +91,14 @@ export const integrationLaunch = sheetData => dispatch => {
       dispatch({ type: SUCCESS_EMIT, payload: "Integration done success!" });
     })
     .catch(err => {
-      // hide spinner
-      dispatch({ type: SPINNER_TOGGLE, payload: false });
-      // error emit
-      dispatch({ type: ERROR_EMIT, payload: err.response.data });
+      if (err.response && err.response.data) {
+        dispatch({ type: SPINNER_TOGGLE, payload: false });
+        dispatch({ type: ERROR_EMIT, payload: err.response.data });
+      } else if (err.code === "ECONNABORTED") {
+        const lastTime = Date.now();
+        console.log(lastTime - firstTime, "timeout axios finish");
+      } else {
+        Object.keys(err).map(key => console.log(key, err[key]));
+      }
     });
 };

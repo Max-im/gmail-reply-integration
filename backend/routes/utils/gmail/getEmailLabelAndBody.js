@@ -3,6 +3,7 @@ const asyncLoop = require("node-async-loop");
 
 const saveMailId = require("./saveMailId");
 const saveBodyAndLabels = require("./saveBodyAndLabels");
+const saveDbResults = require("../db/saveDbResults");
 
 const getEmailLabelAndBody = (
   authArr,
@@ -20,28 +21,35 @@ const getEmailLabelAndBody = (
   }));
 
   return new Promise((resolve, reject) => {
-    // LOOP ACCOUNTS
+    // LOOP EMAILS
     asyncLoop(
-      authArr,
-      (token, nextUser) => {
-        auth.setCredentials(token);
+      emailArr,
+      async (email, nextEmail) => {
+        // if return data from database
+        if (fromDb && dbEmailsArr.includes(email)) {
+          const dbItem = dbEmails
+            .filter(item => item.email === email)
+            .map(item => {
+              const { email, labels, body } = item;
+              return { email, labels, body };
+            })[0];
+          result[emailArr.indexOf(email)] = dbItem;
 
-        // LOOP EMAILS
-        asyncLoop(
-          emailArr,
-          async (email, nextEmail) => {
-            if (fromDb && dbEmailsArr.includes(email)) {
-              const dbItem = dbEmails
-                .filter(item => item.email === email)
-                .map(item => {
-                  const { email, labels, body } = item;
-                  return { email, labels, body };
-                })[0];
-              result[emailArr.indexOf(email)] = dbItem;
+          progressIntegration.progress =
+            emailArr.indexOf(email) / emailArr.length;
+          progressIntegration.status = `Checking Email ${emailArr.indexOf(
+            email
+          )} from ${emailArr.length} `;
+          nextEmail();
+        }
 
-              progressIntegration.done++;
-              nextEmail();
-            } else {
+        // if get data from GMAIL
+        else {
+          // LOOP ACCOUNTS
+          asyncLoop(
+            authArr,
+            async (token, nextUser) => {
+              auth.setCredentials(token);
               const idArr = await saveMailId(auth, email);
 
               // LOOP EMAILS ID
@@ -73,21 +81,33 @@ const getEmailLabelAndBody = (
                             }
                           );
                         },
+                        // LOOP LABELS callback
                         () => nextId()
-                      );
+                      ); // LOOP LABELS finish
                     } else nextId();
                   } else nextId();
                 },
-                () => {
-                  progressIntegration.done++;
-                  nextEmail();
-                }
-              );
+                // LOOP EMAILS ID callback
+                () => nextUser()
+              ); // LOOP EMAILS ID finish
+            },
+
+            // LOOP ACCOUNTS Callback
+            async () => {
+              progressIntegration.progress =
+                emailArr.indexOf(email) / emailArr.length;
+              progressIntegration.status = `Checking Email ${emailArr.indexOf(
+                email
+              )} from ${emailArr.length}`;
+              // save each email in db
+              await saveDbResults(result[emailArr.indexOf(email)]);
+              nextEmail();
             }
-          },
-          () => nextUser()
-        );
+          ); // LOOP ACCOUNTS finish
+        }
       },
+
+      // LOOP EMAILS callback
       () => {
         resolve(
           // return only uniq labels
@@ -97,7 +117,7 @@ const getEmailLabelAndBody = (
           }))
         );
       }
-    );
+    ); // LOOP EMAILS finish
   });
 };
 

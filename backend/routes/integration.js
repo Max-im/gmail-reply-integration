@@ -6,7 +6,6 @@ const oAuth2Client = require("./utils/auth/index");
 // database
 const getDbEmails = require("./utils/db/getDbEmails");
 const getDbAccounts = require("./utils/db/getDbAccounts");
-const saveDbResults = require("./utils/db/saveDbResults");
 // spreadSheet
 const getSheetNames = require("./utils/spreadSheet/getSheetNames");
 const getSheetData = require("./utils/spreadSheet/getSheetData");
@@ -19,7 +18,8 @@ const getEmailLabelAndBody = require("./utils/gmail/getEmailLabelAndBody");
 // @access  Public
 router.get("/test", (req, res) => res.json({ integration: "success" }));
 
-const progressIntegration = { checkLength: 0, done: 0, status: "Prepare..." };
+const progressIntegration = { progress: 0, status: "Prepare..." };
+let isLaunched = false;
 
 // @route   POST integration/launch
 // @desc    Get DB data
@@ -28,9 +28,10 @@ router.post(
   "/launch",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
-    progressIntegration.checkLength = 0;
-    progressIntegration.done = 0;
+    progressIntegration.progress = 0;
     progressIntegration.status = "Prepare...";
+    if (isLaunched) return;
+    isLaunched = true;
 
     try {
       // receive data from frontend
@@ -54,8 +55,7 @@ router.post(
         sheetName
       );
 
-      // init progress length and status
-      progressIntegration.checkLength = emailArr.length * authArr.length;
+      // init progress status
       progressIntegration.status = "Checking...";
 
       // get Labels and bodies
@@ -69,7 +69,7 @@ router.post(
       );
 
       // update progress values
-      progressIntegration.done = progressIntegration.checkLength;
+      progressIntegration.progress = 1;
       progressIntegration.status = "Print results";
 
       oAuth2Client.setCredentials(authArr[0]);
@@ -82,12 +82,11 @@ router.post(
       );
 
       // Save result data in db
-      if (!fromDb) await saveDbResults(resultArr);
       progressIntegration.status = "Done";
+      isLaunched = false;
 
+      // return
       res.json(stat);
-
-      // outputData
     } catch (err) {
       console.log(err);
       res.status(err.error.code).json(err.error.message);

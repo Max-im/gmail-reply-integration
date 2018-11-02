@@ -8,7 +8,7 @@ function getDbAccounts() {
     Accounts.find().then(dbAcc => {
       const decodeAcc = dbAcc.map(item => {
         const decodedToken = jwt.verify(item.token, secretOrKey);
-        return { ...decodedToken };
+        return { ...decodedToken, name: item.name };
       });
 
       if (decodeAcc.length === 0) reject("Accounts not found");
