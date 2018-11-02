@@ -52,7 +52,6 @@ class Login extends Component {
                 placeholder="Email"
                 onChange={this.onChange}
                 title="Email"
-                error={this.props.errors.email}
                 value={this.state.email}
               />
               <InputGroup
@@ -60,7 +59,6 @@ class Login extends Component {
                 name="password"
                 onChange={this.onChange}
                 placeholder="Password"
-                error={this.props.errors.password}
                 value={this.state.password}
                 title="Password"
               />
