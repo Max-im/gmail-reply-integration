@@ -6,7 +6,10 @@ const saveBodyAndLabels = require("./saveBodyAndLabels");
 const saveDbResults = require("../db/saveDbResults");
 
 const getEmailLabelAndBody = (authArr, email, auth, dbEmails, fromDb) => {
-  const dbEmailsArr = dbEmails.map(item => item.email);
+  let dbEmailsArr = [];
+  if (fromDb) {
+    dbEmailsArr = dbEmails.map(item => item.email);
+  }
   const result = { email, labels: [], body: [] };
 
   return new Promise((resolve, reject) => {
@@ -35,7 +38,7 @@ const getEmailLabelAndBody = (authArr, email, auth, dbEmails, fromDb) => {
               if (msgId) {
                 const { labels, body } = await saveBodyAndLabels(auth, msgId);
                 if (body.length > 0) {
-                  result[emailArr.indexOf(email)].body.push(body);
+                  result.body.push(body);
                 }
                 if (labels.length > 0) {
                   // LOOP LABELS
@@ -47,9 +50,7 @@ const getEmailLabelAndBody = (authArr, email, auth, dbEmails, fromDb) => {
                         { userId: "me", id: labelId },
                         (err, res) => {
                           if (err) return reject({ msg: err });
-                          result[emailArr.indexOf(email)].labels.push(
-                            res.data.name
-                          );
+                          result.labels.push(res.data.name);
                           nextLabel();
                         }
                       );
@@ -68,7 +69,7 @@ const getEmailLabelAndBody = (authArr, email, auth, dbEmails, fromDb) => {
         // LOOP ACCOUNTS Callback
         async () => {
           // save each email in db
-          await saveDbResults(result[emailArr.indexOf(email)]);
+          await saveDbResults(result);
           resolve(result);
         }
       ); // LOOP ACCOUNTS finish
