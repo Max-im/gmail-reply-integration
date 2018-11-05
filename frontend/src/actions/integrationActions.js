@@ -9,6 +9,8 @@ import {
   SUCCESS_EMIT
 } from "./constants";
 
+const instance = axios.create({ timeout: 10000000 });
+
 // Get Sheets Names
 export const onGetFileSheets = fileId => dispatch => {
   axios
@@ -41,7 +43,7 @@ export const integrationLaunch = sheetData => dispatch => {
     payload: { status: false, progress: false }
   });
 
-  axios
+  instance
     .post("/integration/get-emails-list", sheetData)
     .then(res => {
       const { emailArr, tabLen, dbEmails } = res.data;
@@ -51,13 +53,23 @@ export const integrationLaunch = sheetData => dispatch => {
         emailArr,
         (email, nextEmail) => {
           // return data from db
+
           if (fromDb && dbEmailsArr.includes(email)) {
             const dbResult = dbEmails
               .filter(item => item.email === email)
               .map(item => ({ email, labels: item.labels, body: item.body }));
 
             result.push(dbResult[0]);
-            nextEmail();
+            dispatch({
+              type: UPDATE_PROGRESS_BAR,
+              payload: {
+                status: `Checked ${result.length} from ${
+                  emailArr.length
+                } emails.`,
+                progress: result.length / emailArr.length
+              }
+            });
+            setTimeout(() => nextEmail(), 3);
           }
           // return data from gmail
           else {
@@ -84,7 +96,7 @@ export const integrationLaunch = sheetData => dispatch => {
           axios
             .post("/integration/output-data", { result, tabLen, ...sheetData })
             .then(res => {
-              dispatch({ type: SPINNER_TOGGLE, payload: true });
+              dispatch({ type: SPINNER_TOGGLE, payload: false });
               dispatch({
                 type: SUCCESS_EMIT,
                 payload: "Integration done success!"
@@ -105,7 +117,7 @@ export const integrationLaunch = sheetData => dispatch => {
           dispatch({ type: ERROR_EMIT, payload: err.response.data });
         }
       } else if (err.code === "ECONNABORTED") {
-        const lastTime = Date.now();
+        console.log("ECONNABORTED error");
       } else {
         Object.keys(err).map(key => console.log(key, err[key]));
       }
