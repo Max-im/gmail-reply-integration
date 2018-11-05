@@ -27,7 +27,11 @@ export const onHideSheetsNames = () => dispatch => {
 };
 
 // NEW LAUNCH
+// !!! important
+// email loop is not in backend becaouse request is too long, and axios emit an timeout error
 export const integrationLaunch = sheetData => dispatch => {
+  const { fromDb } = sheetData;
+
   // show spinner, hide success msg
   dispatch({ type: SPINNER_TOGGLE, payload: true });
   dispatch({ type: SUCCESS_EMIT, payload: false });
@@ -40,27 +44,40 @@ export const integrationLaunch = sheetData => dispatch => {
   axios
     .post("/integration/get-emails-list", sheetData)
     .then(res => {
-      const { emailArr, tabLen } = res.data;
+      const { emailArr, tabLen, dbEmails } = res.data;
+      const dbEmailsArr = dbEmails.map(item => item.email);
       const result = [];
       asyncLoop(
         emailArr,
         (email, nextEmail) => {
-          axios
-            .post("/integration/get-email-data", { ...sheetData, email })
-            .then(res => {
-              result.push(res.data);
-              dispatch({
-                type: UPDATE_PROGRESS_BAR,
-                payload: {
-                  status: `Checked ${result.length} from ${
-                    emailArr.length
-                  } emails.`,
-                  progress: result.length / emailArr.length
-                }
-              });
-              nextEmail();
-            })
-            .catch(err => console.log(err.response.data));
+          // return data from db
+          if (fromDb && dbEmailsArr.includes(email)) {
+            const dbResult = dbEmails
+              .filter(item => item.email === email)
+              .map(item => ({ email, labels: item.labels, body: item.body }));
+
+            result.push(dbResult[0]);
+            nextEmail();
+          }
+          // return data from gmail
+          else {
+            axios
+              .post("/integration/get-email-data", { ...sheetData, email })
+              .then(res => {
+                result.push(res.data);
+                dispatch({
+                  type: UPDATE_PROGRESS_BAR,
+                  payload: {
+                    status: `Checked ${result.length} from ${
+                      emailArr.length
+                    } emails.`,
+                    progress: result.length / emailArr.length
+                  }
+                });
+                nextEmail();
+              })
+              .catch(err => console.log(err.response.data));
+          }
         },
         () => {
           // output data

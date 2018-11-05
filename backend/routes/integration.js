@@ -142,6 +142,9 @@ router.post(
       // get accounts from db
       const authArr = await getDbAccounts();
 
+      // get emails from db
+      const dbEmails = await getDbEmails();
+
       // get target emails from SS
       // @return - arr with emails and number of the last column
       oAuth2Client.setCredentials(authArr[0]);
@@ -150,7 +153,7 @@ router.post(
         fileId,
         sheetName
       );
-      res.json({ emailArr, tabLen });
+      res.json({ emailArr, tabLen, dbEmails });
     } catch (err) {
       console.log(err);
       res.status(err.error.code).json(err.error.message);
@@ -167,24 +170,16 @@ router.post(
   async (req, res) => {
     try {
       // receive data from frontend
-      const { fileId, sheetName, fromDb, email } = req.body;
-      let dbEmails;
+      const { fileId, sheetName, email } = req.body;
 
       // get accounts from db
       const authArr = await getDbAccounts();
-
-      // get emails from db
-      if (fromDb) {
-        dbEmails = await getDbEmails();
-      }
 
       // get Labels and bodies
       const emailData = await getEmailLabelAndBody(
         authArr,
         email,
-        oAuth2Client,
-        dbEmails,
-        fromDb
+        oAuth2Client
       );
 
       res.json(emailData);
