@@ -2,24 +2,17 @@ const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
-const { google } = require("googleapis");
 const axios = require("axios");
+const oAuth2Client = require("./utils/auth/index");
 
 const User = require("../model/User");
 const Accounts = require("../model/Accounts");
-const {
-  secretOrKey,
-  client_id,
-  redirect_uris,
-  client_secret,
-  scope
-} = require("../config/key");
+const Label = require("../model/Label");
 
-const oAuth = new google.auth.OAuth2(
-  client_id,
-  client_secret,
-  redirect_uris[0]
-);
+const getLabels = require("./utils/gmail/getLabels");
+const getDbAccounts = require("./utils/db/getDbAccounts");
+
+const { secretOrKey, scope } = require("../config/key");
 
 // @route   GET settings/test
 // @desc    Return test
@@ -68,7 +61,7 @@ router.post(
   "/accounts",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    const url = oAuth.generateAuthUrl({
+    const url = oAuth2Client.generateAuthUrl({
       access_type: "offline",
       scope
     });
@@ -79,7 +72,7 @@ router.post(
 
 router.get("/accoutns/oauth", async (req, res) => {
   const { code } = req.query;
-  const { tokens } = await oAuth.getToken(code);
+  const { tokens } = await oAuth2Client.getToken(code);
   const Authorization = `Bearer ${tokens.access_token}`;
 
   axios
@@ -126,6 +119,52 @@ router.delete(
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     Accounts.findByIdAndDelete(req.params.id).then(acc => res.json(acc));
+  }
+);
+
+// @route   GET settings/labels
+// @desc    Get labels
+// @access  Private
+router.get(
+  "/labels",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    const authArr = await getDbAccounts();
+
+    const { labels, blackList } = await getLabels(authArr, oAuth2Client);
+    res.json({ labels, blackList });
+  }
+);
+
+// @route   POST settings/labels
+// @desc    Add label to black list
+// @access  Private
+router.post(
+  "/labels",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    const { name } = req.body;
+    const errors = {};
+    Label.findOne({ name }).then(blackLabel => {
+      if (blackLabel) {
+        errors.label = "The Label already exist in black list";
+        res.status(400).json(errors);
+      }
+      const newLabel = new Label({ name });
+      newLabel.save().then(label => res.json(label));
+    });
+  }
+);
+
+// @route   DELETE settings/labels/:id
+// @desc    Remove label from black list
+// @access  Private
+router.delete(
+  "/labels/:id",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    const { id } = req.params;
+    Label.findByIdAndDelete(id).then(label => res.json(label));
   }
 );
 

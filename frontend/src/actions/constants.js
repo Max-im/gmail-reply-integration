@@ -5,6 +5,8 @@ export const LOGOUT = "LOGOUT";
 // Settings
 export const GET_ALL_USERS = "GET_ALL_USERS";
 export const GET_ACCOUNTS = "GET_ACCOUNTS";
+export const GET_LABELS = "GET_LABELS";
+export const GET_BLACK_LIST = "GET_BLACK_LIST";
 
 // Integration
 export const GET_SHEETS_NAMES = "GET_SHEETS_NAMES";

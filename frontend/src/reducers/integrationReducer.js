@@ -1,7 +1,8 @@
 import {
   GET_SHEETS_NAMES,
   SPINNER_TOGGLE,
-  UPDATE_PROGRESS_BAR
+  UPDATE_PROGRESS_BAR,
+  SUCCESS_EMIT
 } from "../actions/constants";
 
 const initialState = {
@@ -32,6 +33,12 @@ export default (state = initialState, action) => {
         ...state,
         progress: action.payload.progress,
         status: action.payload.status
+      };
+
+    case SUCCESS_EMIT:
+      return {
+        ...state,
+        status: "Done"
       };
 
     default:

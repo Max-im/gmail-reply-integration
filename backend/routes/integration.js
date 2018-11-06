@@ -12,98 +12,12 @@ const getSheetData = require("./utils/spreadSheet/getSheetData");
 const updateSheet = require("./utils/spreadSheet//updateSheet");
 // gmail
 const getEmailLabelAndBody = require("./utils/gmail/getEmailLabelAndBody");
+const getLabels = require("./utils/gmail/getLabels");
 
 // @route   GET integration/test
 // @desc    Test
 // @access  Public
 router.get("/test", (req, res) => res.json({ integration: "success" }));
-
-// const progressIntegration = { progress: 0, status: "Prepare..." };
-// let isLaunched = false;
-
-// @route   POST integration/launch
-// @desc    Get DB data
-// @access  Private
-router.post(
-  "/launch",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    progressIntegration.progress = 0;
-    progressIntegration.status = "Prepare...";
-    if (isLaunched) return;
-    isLaunched = true;
-
-    try {
-      // receive data from frontend
-      const { fileId, sheetName, fromDb } = req.body;
-      let dbEmails;
-
-      // get emails from db
-      if (fromDb) {
-        dbEmails = await getDbEmails();
-      }
-
-      // get accounts from db
-      const authArr = await getDbAccounts();
-
-      // get target emails from SS
-      // @return - arr with emails and number of the last column
-      oAuth2Client.setCredentials(authArr[0]);
-      const { emailArr, tabLen } = await getSheetData(
-        oAuth2Client,
-        fileId,
-        sheetName
-      );
-
-      // init progress status
-      progressIntegration.status = "Checking...";
-
-      // get Labels and bodies
-      const resultArr = await getEmailLabelAndBody(
-        authArr,
-        emailArr,
-        oAuth2Client,
-        progressIntegration,
-        dbEmails,
-        fromDb
-      );
-
-      // update progress values
-      progressIntegration.progress = 1;
-      progressIntegration.status = "Print results";
-
-      oAuth2Client.setCredentials(authArr[0]);
-      const stat = await updateSheet(
-        oAuth2Client,
-        resultArr,
-        fileId,
-        sheetName,
-        tabLen
-      );
-
-      // Save result data in db
-      progressIntegration.status = "Done";
-      isLaunched = false;
-
-      // return
-      res.json(stat);
-    } catch (err) {
-      console.log(err);
-      res.status(err.error.code).json(err.error.message);
-    }
-  }
-);
-
-// // @route   GET integration/progress
-// // @desc    Get progress
-// // @access  Private
-// router.get(
-//   "/progress",
-//   passport.authenticate("jwt", { session: false }),
-//   (req, res) => {
-//     res.json(progressIntegration);
-//   }
-// );
 
 // @route   GET integration/sheets/:fileId
 // @desc    Get File Sheets
@@ -156,7 +70,7 @@ router.post(
       res.json({ emailArr, tabLen, dbEmails });
     } catch (err) {
       console.log(err);
-      res.status(err.error.code).json(err.error.message);
+      res.status(400).json(err.error.message);
     }
   }
 );
@@ -185,7 +99,7 @@ router.post(
       res.json(emailData);
     } catch (err) {
       console.log(err);
-      res.status(err.error.code).json(err.error.message);
+      res.status(400).json(err.error.message);
     }
   }
 );
@@ -200,9 +114,10 @@ router.post(
     try {
       // receive data from frontend
       const { fileId, sheetName, tabLen, result } = req.body;
-
       // get accounts from db
       const authArr = await getDbAccounts();
+
+      const { labels } = await getLabels(authArr, oAuth2Client);
 
       oAuth2Client.setCredentials(authArr[0]);
       const stat = await updateSheet(
@@ -210,13 +125,13 @@ router.post(
         result,
         fileId,
         sheetName,
-        tabLen
+        tabLen,
+        labels
       );
-
       res.json(stat);
     } catch (err) {
       console.log(err);
-      res.status(err.error.code).json(err.error.message);
+      res.status(400).json(err);
     }
   }
 );

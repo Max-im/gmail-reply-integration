@@ -9,8 +9,6 @@ import {
   SUCCESS_EMIT
 } from "./constants";
 
-const instance = axios.create({ timeout: 10000000 });
-
 // Get Sheets Names
 export const onGetFileSheets = fileId => dispatch => {
   axios
@@ -43,7 +41,7 @@ export const integrationLaunch = sheetData => dispatch => {
     payload: { status: false, progress: false }
   });
 
-  instance
+  axios
     .post("/integration/get-emails-list", sheetData)
     .then(res => {
       const { emailArr, tabLen, dbEmails } = res.data;
@@ -92,6 +90,13 @@ export const integrationLaunch = sheetData => dispatch => {
           }
         },
         () => {
+          dispatch({
+            type: UPDATE_PROGRESS_BAR,
+            payload: {
+              status: "Pasting data to SpreadSheet",
+              progress: 1
+            }
+          });
           // output data
           axios
             .post("/integration/output-data", { result, tabLen, ...sheetData })
@@ -102,7 +107,10 @@ export const integrationLaunch = sheetData => dispatch => {
                 payload: "Integration done success!"
               });
             })
-            .catch(err => console.log(err.response.data));
+            .catch(err => {
+              dispatch({ type: SPINNER_TOGGLE, payload: false });
+              dispatch({ type: ERROR_EMIT, payload: err.response.data.msg });
+            });
         }
       );
 

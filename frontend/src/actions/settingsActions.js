@@ -1,5 +1,10 @@
 import axios from "axios";
-import { GET_ALL_USERS, GET_ACCOUNTS } from "./constants";
+import {
+  GET_ALL_USERS,
+  GET_ACCOUNTS,
+  GET_LABELS,
+  GET_BLACK_LIST
+} from "./constants";
 
 // Get All Users
 export const getUsers = () => dispatch => {
@@ -40,5 +45,33 @@ export const removeAccount = id => dispatch => {
   axios
     .delete(`/settings/accounts/${id}`)
     .then(res => dispatch(getAccoutns()))
+    .catch(err => console.log(err.response.data));
+};
+
+// get all gmail labels
+export const getLabels = () => dispatch => {
+  axios
+    .get("/settings/labels")
+    .then(res => {
+      const { labels, blackList } = res.data;
+      dispatch({ type: GET_LABELS, payload: labels });
+      dispatch({ type: GET_BLACK_LIST, payload: blackList });
+    })
+    .catch(err => console.log(err.response.data));
+};
+
+// add label to blacklist
+export const addLabelToBlackList = name => dispatch => {
+  axios
+    .post("/settings/labels", { name })
+    .then(res => dispatch(getLabels()))
+    .catch(err => console.log(err.response.data));
+};
+
+// remove label from blacklist
+export const removeLabelFromBlackList = id => dispatch => {
+  axios
+    .delete(`/settings/labels/${id}`)
+    .then(res => dispatch(getLabels()))
     .catch(err => console.log(err.response.data));
 };

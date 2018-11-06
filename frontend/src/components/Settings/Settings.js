@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import AccountsControl from "./AccountsControl";
 import UserControl from "./UsersControl";
 import AddUser from "./AddUser";
+import LabelsContorl from "./LabelsContorl";
 
 class Settings extends Component {
   render() {
@@ -12,6 +13,7 @@ class Settings extends Component {
         <AccountsControl />
         <UserControl />
         <AddUser />
+        <LabelsContorl />
       </div>
     );
   }

@@ -1,7 +1,14 @@
 const { google } = require("googleapis");
 const columnMap = require("./columnMap");
 
-const updateSheet = (auth, emailData, fileId, tableName, tableLength) => {
+const updateSheet = (
+  auth,
+  emailData,
+  fileId,
+  tableName,
+  tableLength,
+  labels
+) => {
   const outputData = [];
   let labelsCount = 0;
   const firstColumn = columnMap(tableLength - 0 + 1);
@@ -14,13 +21,18 @@ const updateSheet = (auth, emailData, fileId, tableName, tableLength) => {
     let bodyText = item.body.join("\n=====================\n");
 
     // max characters num in one SpreadSheet = 50000, cut of the tail for print in
-    if (bodyText.length > 49999) bodyText = bodyText.slice(0, 49998);
+    if (bodyText.length > 49990) bodyText = bodyText.slice(0, 49990) + "...";
     itemArr.push(bodyText);
 
-    item.labels.sort().forEach((label, i) => {
-      if (i > labelsCount) labelsCount = i;
-      itemArr.push(label);
-    });
+    item.labels
+      .filter((v, i, a) => a.indexOf(v) === i)
+      .sort()
+      .forEach((label, i) => {
+        if (labels.includes(label)) {
+          if (i > labelsCount) labelsCount = i;
+          itemArr.push(label);
+        }
+      });
 
     outputData.push(itemArr);
   });
@@ -40,7 +52,9 @@ const updateSheet = (auth, emailData, fileId, tableName, tableLength) => {
         }
       },
       (err, res) => {
-        if (err) return reject({ msg: err });
+        if (err) {
+          return reject({ msg: err.errors[0].message });
+        }
         resolve(emailData.map(item => item.labels));
       }
     );
