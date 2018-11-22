@@ -31,6 +31,7 @@ export const onHideSheetsNames = () => dispatch => {
 // email loop is not in backend becaouse request is too long, and axios emit an timeout error
 export const integrationLaunch = sheetData => dispatch => {
   const { fromDb } = sheetData;
+  console.log("[INTEGRATION START]");
 
   // show spinner, hide success msg
   dispatch({ type: SPINNER_TOGGLE, payload: true });
@@ -47,11 +48,12 @@ export const integrationLaunch = sheetData => dispatch => {
       const { emailArr, tabLen, dbEmails } = res.data;
       const dbEmailsArr = dbEmails.map(item => item.email);
       const result = [];
+      console.log("[GET EMAIL LIST]", emailArr);
+
       asyncLoop(
         emailArr,
         (email, nextEmail) => {
           // return data from db
-
           if (fromDb && dbEmailsArr.includes(email)) {
             const dbResult = dbEmails
               .filter(item => item.email === email)
@@ -90,6 +92,7 @@ export const integrationLaunch = sheetData => dispatch => {
           }
         },
         () => {
+          console.log("[FINISH FETCH DATA]", result);
           dispatch({
             type: UPDATE_PROGRESS_BAR,
             payload: {
@@ -97,6 +100,8 @@ export const integrationLaunch = sheetData => dispatch => {
               progress: 1
             }
           });
+
+          console.log("[PAST DATA SS]");
           // output data
           axios
             .post("/integration/output-data", { result, tabLen, ...sheetData })
@@ -106,6 +111,7 @@ export const integrationLaunch = sheetData => dispatch => {
                 type: SUCCESS_EMIT,
                 payload: "Integration done success!"
               });
+              console.log("[SUCCESS]");
             })
             .catch(err => {
               dispatch({ type: SPINNER_TOGGLE, payload: false });
@@ -120,6 +126,9 @@ export const integrationLaunch = sheetData => dispatch => {
       if (err.response && err.response.data) {
         if (err.response.data.match(/<!DOCTYPE html>/)) {
           console.log("heroku error");
+          console.log("err", err);
+          console.log("err.response", err.response);
+          console.log("err.response.data", err.response.data);
         } else {
           dispatch({ type: SPINNER_TOGGLE, payload: false });
           dispatch({ type: ERROR_EMIT, payload: err.response.data });

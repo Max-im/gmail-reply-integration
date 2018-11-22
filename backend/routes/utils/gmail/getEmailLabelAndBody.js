@@ -9,6 +9,12 @@ const getEmailLabelAndBody = (authArr, email, auth) => {
   const result = { email, labels: [], body: [] };
 
   return new Promise((resolve, reject) => {
+    // DONT CHECK THE EMAILS
+
+    if (email.match(/idealscorp\.com$/i)) {
+      return resolve(result);
+    }
+
     // LOOP ACCOUNTS
     asyncLoop(
       authArr,
@@ -22,6 +28,7 @@ const getEmailLabelAndBody = (authArr, email, auth) => {
           async (msgId, nextId) => {
             if (msgId) {
               const { labels, body } = await saveBodyAndLabels(auth, msgId);
+
               if (body.length > 0) {
                 result.body.push(body);
               }
@@ -55,10 +62,11 @@ const getEmailLabelAndBody = (authArr, email, auth) => {
       async () => {
         // save each email in db
         await saveDbResults(result);
+
         resolve(result);
       }
     ); // LOOP ACCOUNTS finish
-  });
+  }).catch(err => console.log(err));
 };
 
 module.exports = getEmailLabelAndBody;

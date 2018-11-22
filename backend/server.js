@@ -15,7 +15,7 @@ function haltOnTimedout(req, res, next) {
   if (!req.timedout) next();
 }
 
-app.use(bodyParser.urlencoded({ extended: false, limit: "150mb" }));
+app.use(bodyParser.urlencoded({ extended: false, limit: "250mb" }));
 app.use(bodyParser.json({ limit: "50mb", extended: true }));
 const port = process.env.PORT || 5000;
 if (!isProduction) {

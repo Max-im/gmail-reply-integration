@@ -96,6 +96,8 @@ router.post(
         oAuth2Client
       );
 
+      console.log("emailData", emailData);
+
       res.json(emailData);
     } catch (err) {
       console.log(err);
