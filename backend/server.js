@@ -2,14 +2,14 @@ const express = require("express");
 const mongoose = require("mongoose");
 const passport = require("passport");
 const bodyParser = require("body-parser");
-const timeout = require("connect-timeout");
+// const timeout = require("connect-timeout");
 const path = require("path");
 
 const app = express();
 const isProduction = process.env.NODE_ENV === "production";
 
-app.use(timeout(1200000));
-app.use(haltOnTimedout);
+// app.use(timeout(1200000));
+// app.use(haltOnTimedout);
 
 function haltOnTimedout(req, res, next) {
   if (!req.timedout) next();
