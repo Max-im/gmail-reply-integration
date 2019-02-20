@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 
 const LabelSchema = new Schema({
   name: { type: String, required: true },
+  type: { type: String, default: "ignore" },
   date: { type: Date, default: Date.now }
 });
 

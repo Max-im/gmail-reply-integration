@@ -2,8 +2,9 @@
 package-lock.json
 
 /frontend/etc
+/frontend/src/config/dev.js
 /frontend/node_modules/
 /frontend/package-lock.json
 
-/backend/config/key_dev.js
-/backend/config/client_dev.js
+/backend/config/dev.js
+

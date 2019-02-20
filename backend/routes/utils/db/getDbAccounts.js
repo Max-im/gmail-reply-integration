@@ -1,21 +1,15 @@
 const jwt = require("jsonwebtoken");
 const Accounts = require("../../../model/Accounts");
+const { secretOrKey } = require("../../../config");
 
-const { secretOrKey } = require("../../../config/key");
+module.exports = () => {
+  return new Promise(async resolve => {
+    const accounts = await Accounts.find();
+    const decoded = accounts.map(item => ({
+      ...item._doc,
+      token: jwt.verify(item.token, secretOrKey)
+    }));
 
-function getDbAccounts() {
-  return new Promise((resolve, reject) => {
-    Accounts.find().then(dbAcc => {
-      const decodeAcc = dbAcc.map(item => {
-        const decodedToken = jwt.verify(item.token, secretOrKey);
-        return { ...decodedToken, name: item.name };
-      });
-
-      if (decodeAcc.length === 0) reject("Accounts not found");
-
-      resolve(decodeAcc);
-    });
+    resolve(decoded);
   });
-}
-
-module.exports = getDbAccounts;
+};

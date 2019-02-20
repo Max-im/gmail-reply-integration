@@ -1,19 +1,24 @@
 const { google } = require("googleapis");
 const asyncLoop = require("node-async-loop");
-const Label = require("../../../model/Label");
+const auth = require("../auth");
 
-function getLabels(authArr, auth) {
+module.exports = accounts => {
   const userId = "me";
   const labelsArr = [];
 
   return new Promise((resolve, reject) => {
     asyncLoop(
-      authArr,
-      (token, nextUser) => {
-        auth.setCredentials(token);
+      accounts,
+      (account, nextUser) => {
+        auth.setCredentials(account.token);
         const gmail = google.gmail({ version: "v1", auth });
+
         gmail.users.labels.list({ userId }, (err, res) => {
-          if (err) return reject({ msg: err });
+          if (err) {
+            console.error(err.response.data, "error getting labels");
+            return reject({ msg: err.response.data });
+          }
+
           const labelsName = res.data.labels
             .filter(item => item.type === "user")
             .filter(item => item.name.match(/^!/))
@@ -23,18 +28,12 @@ function getLabels(authArr, auth) {
           nextUser();
         });
       },
-      () => {
-        Label.find().then(blackList => {
-          const blackLabelsName = blackList.map(item => item.name);
-          const uniqLabelArr = labelsArr
-            .filter((v, i, a) => a.indexOf(v) === i)
-            .filter(item => !blackLabelsName.includes(item));
+      async () => {
+        // filter unique labels
+        const labels = labelsArr.filter((v, i, a) => a.indexOf(v) === i);
 
-          resolve({ labels: uniqLabelArr, blackList });
-        });
+        resolve(labels);
       }
     );
   });
-}
-
-module.exports = getLabels;
+};

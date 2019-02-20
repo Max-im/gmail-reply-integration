@@ -1,141 +1,165 @@
 const express = require("express");
-const passport = require("passport");
 const router = express.Router();
-const oAuth2Client = require("./utils/auth/index");
+const isLogged = require("../middlevares/isLogged");
+const asyncLoop = require("node-async-loop");
+const jwt = require("jsonwebtoken");
+const { secretOrKey } = require("../config");
 
-// database
-const getDbEmails = require("./utils/db/getDbEmails");
-const getDbAccounts = require("./utils/db/getDbAccounts");
-// spreadSheet
+const Thread = require("../model/Threads");
+const Label = require("../model/Label");
+const Accounts = require("../model/Accounts");
+
+const getFiles = require("./utils/spreadSheet/getFiles");
 const getSheetNames = require("./utils/spreadSheet/getSheetNames");
 const getSheetData = require("./utils/spreadSheet/getSheetData");
-const updateSheet = require("./utils/spreadSheet//updateSheet");
-// gmail
-const getEmailLabelAndBody = require("./utils/gmail/getEmailLabelAndBody");
-const getLabels = require("./utils/gmail/getLabels");
+const outputSheetData = require("./utils/spreadSheet/outputSheetData");
+const getAccountHistory = require("./utils/gmail/getAccountHistory");
+const getAccountLabels = require("./utils/gmail/getAccountLabels");
+const getThreadDataById = require("./utils/gmail/getThreadDataById");
 
 // @route   GET integration/test
 // @desc    Test
 // @access  Public
 router.get("/test", (req, res) => res.json({ integration: "success" }));
 
-// @route   GET integration/sheets/:fileId
-// @desc    Get File Sheets
+// @route   GET integration/files
+// @desc    Get all user spreadsheets files
 // @access  Private
-router.get(
-  "/sheets/:fileId",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    try {
-      const { fileId } = req.params;
-      const authArr = await getDbAccounts();
+router.get("/files", isLogged, async (req, res) => {
+  const { user } = req;
+  const token = jwt.verify(user.token, secretOrKey);
+  const files = await getFiles(token);
+  res.json(files);
+});
 
-      oAuth2Client.setCredentials(authArr[0]);
-      const sheetNames = await getSheetNames(oAuth2Client, fileId);
-
-      res.json(sheetNames);
-    } catch (err) {
-      res.status(404).json(err);
-    }
-  }
-);
-
-// ===========================================================
-// FRONTEND LOGIC
-// ===========================================================
-
-// @route   POST integration/get-emails-list
-// @desc    Get Emails List
+// @route   GET integration/file/:id
+// @desc    Get sheet names of the file
 // @access  Private
-router.post(
-  "/get-emails-list",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    try {
-      const { fileId, sheetName } = req.body;
-      // get accounts from db
-      const authArr = await getDbAccounts();
+router.get("/file/:id", isLogged, async (req, res) => {
+  const { id } = req.params;
+  const { user } = req;
+  const token = jwt.verify(user.token, secretOrKey);
+  const sheets = await getSheetNames(token, id);
+  res.json(sheets);
+});
 
-      // get emails from db
-      const dbEmails = await getDbEmails();
-
-      // get target emails from SS
-      // @return - arr with emails and number of the last column
-      oAuth2Client.setCredentials(authArr[0]);
-      const { emailArr, tabLen } = await getSheetData(
-        oAuth2Client,
-        fileId,
-        sheetName
-      );
-      res.json({ emailArr, tabLen, dbEmails });
-    } catch (err) {
-      console.log(err);
-      res.status(400).json(err.error.message);
-    }
-  }
-);
-
-// @route   POST integration/get-email-data
-// @desc    Get Each email data
+// @route   GET integration/sheet/:fileId/:sheetName
+// @desc    Get file data
 // @access  Private
-router.post(
-  "/get-email-data",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    try {
-      // receive data from frontend
-      const { fileId, sheetName, email } = req.body;
-
-      // get accounts from db
-      const authArr = await getDbAccounts();
-
-      // get Labels and bodies
-      const emailData = await getEmailLabelAndBody(
-        authArr,
-        email,
-        oAuth2Client
-      );
-
-      console.log("emailData", emailData);
-
-      res.json(emailData);
-    } catch (err) {
-      console.log(err);
-      res.status(400).json(err.error.message);
-    }
+router.get("/sheet/:fileId/:sheetName", isLogged, async (req, res) => {
+  const { fileId, sheetName } = req.params;
+  const { user } = req;
+  const token = jwt.verify(user.token, secretOrKey);
+  try {
+    const emailArr = await getSheetData(token, fileId, sheetName);
+    res.json(emailArr);
+  } catch (err) {
+    res.status(400).json(err);
   }
-);
+});
 
-// @route   POST integration/output-data
-// @desc    Save data in ss
+// @route   GET integration/update
+// @desc    Update account data
 // @access  Private
-router.post(
-  "/output-data",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    try {
-      // receive data from frontend
-      const { fileId, sheetName, tabLen, result } = req.body;
-      // get accounts from db
-      const authArr = await getDbAccounts();
+// TODO remove old, add new, update current
+router.get("/update", isLogged, async (req, res) => {
+  // get accounts
+  const accounts = await Accounts.find();
 
-      const { labels } = await getLabels(authArr, oAuth2Client);
+  const decoded = accounts.map(item => ({
+    ...item._doc,
+    token: jwt.verify(item.token, secretOrKey)
+  }));
 
-      oAuth2Client.setCredentials(authArr[0]);
-      const stat = await updateSheet(
-        oAuth2Client,
-        result,
-        fileId,
-        sheetName,
-        tabLen,
-        labels
-      );
-      res.json(stat);
-    } catch (err) {
-      console.log(err);
-      res.status(400).json(err);
-    }
-  }
-);
+  asyncLoop(
+    decoded,
+    async (account, nextAccount) => {
+      // get updated threads
+      const { result, historyId } = await getAccountHistory(account);
+
+      // update account historyId
+      const { _id } = account;
+      await Accounts.findOneAndUpdate({ _id }, { $set: { historyId } });
+
+      if (result.length === 0) {
+        return nextAccount();
+      }
+
+      // all account labels
+      const userLabels = await getAccountLabels(account);
+
+      asyncLoop(result, async (id, nextId) => {
+        // retrieve thread data
+        const options = { id, userLabels, email: account.email };
+        const threadData = await getThreadDataById(options);
+
+        // check if the thread in db
+        const theThread = await Thread.findOne({ threadId: id });
+
+        // if there is new thread -
+        if (theThread) {
+          await Thread.findOneAndDelete({ _id: theThread._id });
+        }
+
+        // save new thread
+        const newThread = new Thread(threadData);
+        await newThread.save();
+
+        nextId();
+      });
+
+      nextAccount();
+    },
+    () => res.json()
+  );
+});
+
+// @route   GET integration/compare
+// @desc    get threads matched by email
+// @access  Private
+router.post("/compare", isLogged, async (req, res) => {
+  const { emailArr } = req.body;
+
+  // get all the threads
+  const threads = await Thread.find();
+  if (threads.length === 0) return res.json([]);
+
+  const mapped = emailArr.map(email => {
+    const matchedThreads = threads
+      // filter all matched
+      .filter(item => {
+        if (item.people.some(person => person === email)) return true;
+        return false;
+      })
+      // map body and labels
+      .map(item => ({ body: item.body, labels: item.labels }));
+    return matchedThreads;
+  });
+
+  // filter by "check" labels
+  const labels = await Label.find({ type: "check" });
+  const labelNames = labels.map(item => item.name);
+  const threadArr = mapped.map(item =>
+    item
+      .filter(thread => thread.labels.some(label => labelNames.includes(label)))
+      .map(item => ({
+        body: item.body,
+        labels: item.labels.filter(label => labelNames.includes(label))
+      }))
+  );
+
+  res.json(threadArr);
+});
+
+// @route   POST integration/sheet
+// @desc    Output Data
+// @access  Private
+router.post("/sheet", isLogged, async (req, res) => {
+  const { fileId, sheetName, data } = req.body;
+  const { user } = req;
+  const token = jwt.verify(user.token, secretOrKey);
+  await outputSheetData(token, fileId, sheetName, data);
+  res.json();
+});
 
 module.exports = router;

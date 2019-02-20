@@ -1,49 +1,40 @@
 const { google } = require("googleapis");
-const emailValidation = require("../../../validate/emailValidation");
+const auth = require("../auth/user");
 
-const getSheetData = async (auth, spreadsheetId, range) => {
+module.exports = (token, spreadsheetId, range) => {
+  auth.setCredentials(token);
   const sheets = google.sheets({ version: "v4", auth });
 
   return new Promise((resolve, reject) => {
     sheets.spreadsheets.values.get({ spreadsheetId, range }, (err, res) => {
-      if (err) {
-        return reject(err);
-      }
+      if (err) return reject(err);
+
+      // check data not empty
       const { values } = res.data;
+      if (!values) return reject("The sheet is empty");
 
-      // verify value exist
-      if (values === undefined) {
-        return reject({ error: { message: "Data undefined", code: 404 } });
-      }
-
-      // verify Email column exists
-      const index = values[0].indexOf("Email");
-      const tabLen = values[0].length;
-      if (index === -1) {
-        return reject({
-          error: {
-            message: "Email field is required column in Header",
-            code: 404
-          }
-        });
-      }
-
-      const emailArr = values.map(item => item[index].toLowerCase());
+      // check Email header
+      const head = values[0];
+      const index = head.indexOf("Email");
+      if (index === -1) return reject("Email header is required");
+      const emailArr = values.map(item => item[index]);
       emailArr.shift();
-      while (emailArr[emailArr.length - 1] === "") emailArr.pop();
-      if (emailArr.length === 0) {
-        return reject({
-          error: {
-            message: "Email field is empty",
-            code: 404
-          }
-        });
+
+      // cut empty tail
+      while (
+        emailArr.length !== 0 &&
+        (emailArr[emailArr.length - 1] === undefined ||
+          emailArr[emailArr.length - 1].length === 0)
+      ) {
+        emailArr.pop();
       }
-      const { isValid, errors } = emailValidation(emailArr);
-      if (!isValid) return reject(errors);
-      resolve({ emailArr, tabLen });
+
+      // check email column not empty
+      if (emailArr.length === 0) return reject("Email column is empty");
+
+      const lower = emailArr.map(item => item.toLowerCase());
+
+      resolve(lower);
     });
   });
 };
-
-module.exports = getSheetData;

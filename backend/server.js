@@ -26,22 +26,15 @@ if (!isProduction) {
 }
 
 // db connect
-const MONGO_DB = require("./config/key").MONGO_DB;
+const MONGO_DB = require("./config").MONGO_DB;
 mongoose
-  .connect(
-    MONGO_DB,
-    { useNewUrlParser: true }
-  )
+  .connect(MONGO_DB, { useNewUrlParser: true })
   .then(() => console.log("db start"));
 
 // Routing export
 const auth = require("./routes/auth");
 const settings = require("./routes/settings");
 const integration = require("./routes/integration");
-
-// Passport middleware
-app.use(passport.initialize());
-require("./config/passport")(passport);
 
 // includes routes
 app.use("/auth", auth);
