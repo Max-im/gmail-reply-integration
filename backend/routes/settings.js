@@ -38,6 +38,7 @@ router.get("/accounts", isLogged, async (req, res) => {
 // @desc    Create new Account
 // @access  Private
 router.get("/accounts/google", isLogged, (req, res) => {
+  console.log("start creating");
   const url = auth.generateAuthUrl({ access_type: "offline", scope });
   res.json({ url });
 });

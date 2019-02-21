@@ -30,7 +30,10 @@ export const getAccoutns = () => dispatch => {
 export const createAccount = () => () => {
   axios
     .get("/settings/accounts/google")
-    .then(res => (window.location.href = res.data.url))
+    .then(res => {
+      console.log(res.data.url);
+      window.location.href = res.data.url;
+    })
     .catch(err => console.error(err.response.data));
 };
 
