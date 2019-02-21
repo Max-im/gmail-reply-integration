@@ -32,7 +32,7 @@ export const createAccount = () => () => {
     .get("/settings/accounts/google")
     .then(res => {
       console.log(res.data.url);
-      window.location.href = res.data.url;
+      // window.location.href = res.data.url;
     })
     .catch(err => console.error(err.response.data));
 };
