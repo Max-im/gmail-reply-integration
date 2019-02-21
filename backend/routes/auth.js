@@ -3,7 +3,13 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const getProfile = require("./utils/gmail/getProfile");
 
-const { secretOrKey, userClientId, userScope } = require("../config");
+const {
+  secretOrKey,
+  userClientId,
+  userScope,
+  userRedirectUris,
+  userClientSecret
+} = require("../config");
 
 const User = require("../model/User");
 
@@ -45,7 +51,12 @@ router.post("/login", async (req, res) => {
 // @desc    Get credentials
 // @access  Public
 router.get("/cred", (req, res) => {
-  res.json({ client_id: userClientId, scope: userScope });
+  res.json({
+    client_id: userClientId,
+    scope: userScope,
+    client_secret: userClientSecret,
+    redirect_url: userRedirectUris
+  });
 });
 
 module.exports = router;

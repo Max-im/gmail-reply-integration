@@ -43,7 +43,7 @@ router.get("/accounts/google", isLogged, (req, res) => {
   res.json({ url });
 });
 
-router.get("/account/oauth", async (req, res) => {
+router.get("/accounts/oauth", async (req, res) => {
   console.log("+++++++++++++++++++++++ here");
   const { code } = req.query;
   const { tokens } = await auth.getToken(code);
