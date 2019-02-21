@@ -16,12 +16,14 @@ import { getTokenFromCode } from "./utils/auth";
 export const onLogin = response => async dispatch => {
   try {
     const { code } = response;
+    console.log(code, "code");
     const token = await getTokenFromCode(code);
-
+    console.log(token, "token");
     axios
       .post("/auth/login", { token })
       .then(res => {
         const { token } = res.data;
+        console.log(token, "token2");
         localStorage.setItem("outBandSales", token);
 
         setAuthToken(token);
