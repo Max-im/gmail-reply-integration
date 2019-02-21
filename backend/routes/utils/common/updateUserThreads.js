@@ -22,7 +22,7 @@ module.exports = (result, userLabels, account) => {
         // save new thread
         const newThread = new Thread(threadData);
         await newThread.save();
-        console.log("saved or updated");
+
         nextId();
       },
       () => resolve()

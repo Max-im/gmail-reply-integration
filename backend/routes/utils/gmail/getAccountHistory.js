@@ -27,10 +27,6 @@ module.exports = account => {
 
         // save threads id
         if (history) {
-          console.log("GOT history - ", history.length);
-          console.log("nextPageToken", nextPageToken);
-          console.log(res.data);
-
           history.forEach(item => {
             if (!result.includes(item.messages[0].threadId)) {
               result.push(item.messages[0].threadId);
@@ -41,7 +37,6 @@ module.exports = account => {
         // if exists next page go on it
         if (nextPageToken) {
           options.pageToken = nextPageToken;
-          console.log("NEXT PAGE");
           nextPage();
         } else {
           return resolve({ result, historyId: theHistoryId });
