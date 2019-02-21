@@ -89,6 +89,7 @@ router.get("/update", isLogged, async (req, res) => {
       console.log("UPDATE account");
 
       if (result.length === 0) {
+        console.log("result = 0");
         return nextAccount();
       }
 

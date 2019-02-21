@@ -69,7 +69,7 @@ export const onLaunch = sheetName => async (dispatch, getState) => {
     addInfo("Got sheet Data", dispatch);
 
     // update accounts data by historyId
-    await axios.get("/integration/update");
+    await axios.get("/integration/update", { timeout: 120000 });
     addInfo("Accounts data updated", dispatch);
 
     // compare emails
