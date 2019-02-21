@@ -17,7 +17,7 @@ module.exports = account => {
     gmail.users.history.list(options, (err, res) => {
       if (err) return console.error(err);
       asyncLoop(arr, (page, nextPage) => {
-        const { history, historyId } = res.data;
+        const { history, historyId, nextPageToken } = res.data;
         // store first got history id
         if (!theHistoryId) theHistoryId = historyId;
 
@@ -31,9 +31,11 @@ module.exports = account => {
           });
         }
 
+        console.log(nextPageToken, "nextPageToken");
+
         // if exists next page go on it
-        if (res.data.nextPageToken) {
-          options.pageToken = res.data.nextPageToken;
+        if (nextPageToken) {
+          options.pageToken = nextPageToken;
           console.log("NEXT PAGE");
           nextPage();
         } else {
