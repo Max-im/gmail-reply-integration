@@ -61,15 +61,18 @@ router.get("/sheet/:fileId/:sheetName", isLogged, async (req, res) => {
 // @route   GET integration/update
 // @desc    Update account data
 // @access  Private
-// TODO remove old, add new, update current
 router.get("/update", isLogged, async (req, res) => {
+  console.log("START UPDATE");
   // get accounts
   const accounts = await Accounts.find();
+  console.log("GOT ACCOUNTS");
 
   const decoded = accounts.map(item => ({
     ...item._doc,
     token: jwt.verify(item.token, secretOrKey)
   }));
+
+  console.log("DECODED");
 
   asyncLoop(
     decoded,
