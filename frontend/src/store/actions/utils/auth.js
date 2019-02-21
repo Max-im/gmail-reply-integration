@@ -1,6 +1,11 @@
 import axios from "axios";
 
-export const getTokenFromCode = code => {
+export const getTokenFromCode = (
+  code,
+  redirect_uri,
+  client_id,
+  client_secret
+) => {
   return new Promise((resolve, reject) => {
     axios
       .post(
@@ -10,11 +15,10 @@ export const getTokenFromCode = code => {
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           params: {
             code,
-            client_id:
-              "969544593152-tmvbkq2uhpalst6o75gbgjkcfj7hs1u2.apps.googleusercontent.com",
-            client_secret: "wQEzqtRQUIiMc0E9wpjEgMFD",
+            client_id,
+            client_secret,
             grant_type: "authorization_code",
-            redirect_uri: "https://gmail-reply-connector.herokuapp.com"
+            redirect_uri
           }
         }
       )

@@ -13,11 +13,17 @@ import { setAuthToken } from "./utils/general";
 import { getTokenFromCode } from "./utils/auth";
 
 // login
-export const onLogin = response => async dispatch => {
+export const onLogin = response => async (dispatch, getStore) => {
+  const store = getStore();
+  const { redirect_url, client_id, client_secret } = store.auth;
   try {
     const { code } = response;
-
-    const token = await getTokenFromCode(code);
+    const token = await getTokenFromCode(
+      code,
+      redirect_url,
+      client_id,
+      client_secret
+    );
 
     axios
       .post("/auth/login", { token })
@@ -53,8 +59,11 @@ export const getLoginCred = () => dispatch => {
   axios
     .get("/auth/cred")
     .then(res => {
-      const { client_id, scope } = res.data;
-      dispatch({ type: SAVE_AUTH_CRED, payload: { client_id, scope } });
+      const { client_id, scope, redirect_url, client_secret } = res.data;
+      dispatch({
+        type: SAVE_AUTH_CRED,
+        payload: { client_id, scope, redirect_url, client_secret }
+      });
       dispatch({ type: END_PROCESS });
     })
     .catch(() => {
