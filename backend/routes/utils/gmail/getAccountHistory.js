@@ -31,11 +31,9 @@ module.exports = account => {
           });
         }
 
-        console.log(nextPageToken, "nextPageToken");
-
         // if exists next page go on it
         if (nextPageToken) {
-          options.pageToken = nextPageToken;
+          options.startHistoryId = historyId;
           console.log("NEXT PAGE");
           nextPage();
         } else {
