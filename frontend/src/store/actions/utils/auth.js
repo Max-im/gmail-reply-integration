@@ -14,8 +14,7 @@ export const getTokenFromCode = code => {
               "969544593152-tmvbkq2uhpalst6o75gbgjkcfj7hs1u2.apps.googleusercontent.com",
             client_secret: "wQEzqtRQUIiMc0E9wpjEgMFD",
             grant_type: "authorization_code",
-            redirect_uri:
-              "https://gmail-reply-connector.herokuapp.com/auth/oauth"
+            redirect_uri: "https://gmail-reply-connector.herokuapp.com"
           }
         }
       )
