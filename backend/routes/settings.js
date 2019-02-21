@@ -19,12 +19,7 @@ const getDbAccounts = require("./utils/db/getDbAccounts");
 const auth = require("./utils/auth");
 
 const isLogged = require("../middlevares/isLogged");
-const {
-  secretOrKey,
-  scope,
-  redirect_uri1,
-  redirect_uri2
-} = require("../config");
+const { secretOrKey, scope, redirect_uri2 } = require("../config");
 
 // @route   GET settings/test
 // @desc    Return test
@@ -54,7 +49,7 @@ router.get("/account/oauth", async (req, res) => {
   user.token = jwt.sign(tokens, secretOrKey);
   const theAccount = await Accounts.findOne({ gId: user.gId });
 
-  if (theAccount) return res.status(400).redirect(redirect_uri2);
+  if (theAccount) return res.redirect(redirect_uri2);
 
   const newAccount = new Accounts(user);
   await newAccount.save();
