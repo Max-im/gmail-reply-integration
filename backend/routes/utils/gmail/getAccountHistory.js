@@ -23,6 +23,7 @@ module.exports = account => {
 
         // save threads id
         if (history) {
+          console.log("GOT history - ", history.length);
           history.forEach(item => {
             if (!result.includes(item.messages[0].threadId)) {
               result.push(item.messages[0].threadId);
@@ -33,9 +34,10 @@ module.exports = account => {
         // if exists next page go on it
         if (res.data.nextPageToken) {
           options.pageToken = res.data.nextPageToken;
+          console.log("NEXT PAGE");
           nextPage();
         } else {
-          resolve({ result, historyId: theHistoryId });
+          return resolve({ result, historyId: theHistoryId });
         }
       });
     });

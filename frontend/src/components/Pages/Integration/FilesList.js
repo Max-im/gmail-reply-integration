@@ -13,10 +13,7 @@ export class FilesList extends Component {
   };
 
   componentDidMount() {
-    const { filesReady } = this.props.integration;
-    if (!filesReady) {
-      this.props.uploadFileNames();
-    }
+    this.props.uploadFileNames();
   }
 
   onChange(e) {
