@@ -40,7 +40,7 @@ router.get("/accounts", isLogged, async (req, res) => {
 router.get("/accounts/google", isLogged, (req, res) => {
   const url = auth.generateAuthUrl({ access_type: "offline", scope });
   console.log(redirect_uris);
-  console.log(redirect_uris[1]);
+  console.log(redirect_uris[2]);
   res.json({ url });
 });
 
