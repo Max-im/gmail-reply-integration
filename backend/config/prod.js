@@ -3,7 +3,8 @@ module.exports = {
   secretOrKey: process.env.SECRET_OR_KEY,
   client_id: process.env.CLIENT_ID,
   client_secret: process.env.CLIENT_SECRET,
-  redirect_uris: process.env.REDIRECT_URIS,
+  redirect_uri1: process.env.REDIRECT_URI1,
+  redirect_uri2: process.env.REDIRECT_URI2,
   scope: process.env.SCOPE,
 
   userClientId: process.env.USER_CLIENT_ID,

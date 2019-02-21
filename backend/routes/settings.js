@@ -19,7 +19,12 @@ const getDbAccounts = require("./utils/db/getDbAccounts");
 const auth = require("./utils/auth");
 
 const isLogged = require("../middlevares/isLogged");
-const { secretOrKey, scope, redirect_uris } = require("../config");
+const {
+  secretOrKey,
+  scope,
+  redirect_uri1,
+  redirect_uri2
+} = require("../config");
 
 // @route   GET settings/test
 // @desc    Return test
@@ -39,9 +44,6 @@ router.get("/accounts", isLogged, async (req, res) => {
 // @access  Private
 router.get("/accounts/google", isLogged, (req, res) => {
   const url = auth.generateAuthUrl({ access_type: "offline", scope });
-  console.log(typeof redirect_uris);
-  console.log(Array.from(redirect_uris));
-  console.log(redirect_uris[2]);
   res.json({ url });
 });
 
@@ -52,11 +54,11 @@ router.get("/account/oauth", async (req, res) => {
   user.token = jwt.sign(tokens, secretOrKey);
   const theAccount = await Accounts.findOne({ gId: user.gId });
 
-  if (theAccount) return res.status(400).redirect(redirect_uris[1]);
+  if (theAccount) return res.status(400).redirect(redirect_uri2);
 
   const newAccount = new Accounts(user);
   await newAccount.save();
-  res.redirect(redirect_uris[1]);
+  res.redirect(redirect_uri2);
 });
 
 // @route   POST settings/upload-accoutns
