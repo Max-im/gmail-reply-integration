@@ -48,6 +48,7 @@ router.get("/account/oauth", async (req, res) => {
   const user = await getProfile(tokens);
   user.token = jwt.sign(tokens, secretOrKey);
   const theAccount = await Accounts.findOne({ gId: user.gId });
+  console.log(redirect_uris);
   if (theAccount) return res.status(400).redirect(redirect_uris[1]);
 
   const newAccount = new Accounts(user);
