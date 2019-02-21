@@ -43,6 +43,7 @@ router.get("/accounts/google", isLogged, (req, res) => {
 });
 
 router.get("/account/oauth", async (req, res) => {
+  console.log("+++++++++++++++++++++++ here");
   const { code } = req.query;
   const { tokens } = await auth.getToken(code);
   const user = await getProfile(tokens);
