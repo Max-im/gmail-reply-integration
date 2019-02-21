@@ -14,7 +14,7 @@ import { getTokenFromCode } from "./utils/auth";
 
 // login
 export const onLogin = response => async dispatch => {
-  console.log(response, "response");
+  console.log("response", response);
   try {
     const { code } = response;
     console.log(code, "code");
