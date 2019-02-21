@@ -24,6 +24,8 @@ module.exports = account => {
         // save threads id
         if (history) {
           console.log("GOT history - ", history.length);
+          console.log("nextPageToken", nextPageToken);
+
           history.forEach(item => {
             if (!result.includes(item.messages[0].threadId)) {
               result.push(item.messages[0].threadId);
