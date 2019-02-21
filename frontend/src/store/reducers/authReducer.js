@@ -1,8 +1,10 @@
-import { LOGIN, LOGOUT } from "../actions/constants";
+import { LOGIN, LOGOUT, SAVE_AUTH_CRED } from "../actions/constants";
 
 const initialState = {
   isAuth: false,
-  user: null
+  user: null,
+  client_id: false,
+  scope: false
 };
 
 export default (state = initialState, action) => {
@@ -19,6 +21,13 @@ export default (state = initialState, action) => {
         ...state,
         isAuth: false,
         user: null
+      };
+
+    case SAVE_AUTH_CRED:
+      return {
+        ...state,
+        client_id: action.payload.client_id,
+        scope: action.payload.scope
       };
 
     default:

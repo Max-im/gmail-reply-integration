@@ -3,20 +3,23 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { GoogleAuthorize } from "react-google-authorize";
 
-import { onLogout, onLogin } from "../../store/actions/auth";
-import { scope, client_id } from "../../config";
+import { onLogout, onLogin, getLoginCred } from "../../store/actions/auth";
 
 export class AuthMenu extends Component {
+  componentDidMount() {
+    this.props.getLoginCred();
+  }
+
   static propTypes = {
     auth: PropTypes.object.isRequired,
     onLogout: PropTypes.func.isRequired,
-    onLogin: PropTypes.func.isRequired
+    onLogin: PropTypes.func.isRequired,
+    getLoginCred: PropTypes.func.isRequired
   };
 
   render() {
-    const { isAuth, user } = this.props.auth;
-    console.log(client_id, "client_id");
-    console.log(process.env.USER_CLIENT_ID, "process.env.USER_CLIENT_ID");
+    const { isAuth, user, client_id, scope } = this.props.auth;
+
     return (
       <div>
         {isAuth ? (
@@ -52,5 +55,5 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { onLogout, onLogin }
+  { onLogout, onLogin, getLoginCred }
 )(AuthMenu);

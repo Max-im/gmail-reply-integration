@@ -3,7 +3,7 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const getProfile = require("./utils/gmail/getProfile");
 
-const { secretOrKey } = require("../config");
+const { secretOrKey, userClientId, userScope } = require("../config");
 
 const User = require("../model/User");
 
@@ -39,6 +39,13 @@ router.post("/login", async (req, res) => {
     if (err) return res.status(400).json(err);
     res.json({ token });
   });
+});
+
+// @route   GET auth/cred
+// @desc    Get credentials
+// @access  Public
+router.get("/cred", (req, res) => {
+  res.json({ client_id: userClientId, scope: userScope });
 });
 
 module.exports = router;

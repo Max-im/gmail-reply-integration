@@ -5,6 +5,7 @@ export const END_PROCESS = "END_PROCESS";
 // Auth
 export const LOGIN = "LOGIN";
 export const LOGOUT = "LOGOUT";
+export const SAVE_AUTH_CRED = "SAVE_AUTH_CRED";
 
 // Settings
 export const GET_ACCOUNTS = "GET_ACCOUNTS";
