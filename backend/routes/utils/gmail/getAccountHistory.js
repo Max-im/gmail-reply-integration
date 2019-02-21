@@ -29,6 +29,7 @@ module.exports = account => {
         if (history) {
           console.log("GOT history - ", history.length);
           console.log("nextPageToken", nextPageToken);
+          console.log(res.data);
 
           history.forEach(item => {
             if (!result.includes(item.messages[0].threadId)) {

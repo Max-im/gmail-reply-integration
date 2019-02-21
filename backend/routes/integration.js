@@ -12,10 +12,10 @@ const Accounts = require("../model/Accounts");
 const getFiles = require("./utils/spreadSheet/getFiles");
 const getSheetNames = require("./utils/spreadSheet/getSheetNames");
 const getSheetData = require("./utils/spreadSheet/getSheetData");
+const updateUserThreads = require("./utils/common/updateUserThreads");
 const outputSheetData = require("./utils/spreadSheet/outputSheetData");
 const getAccountHistory = require("./utils/gmail/getAccountHistory");
 const getAccountLabels = require("./utils/gmail/getAccountLabels");
-const getThreadDataById = require("./utils/gmail/getThreadDataById");
 
 // @route   GET integration/test
 // @desc    Test
@@ -62,61 +62,31 @@ router.get("/sheet/:fileId/:sheetName", isLogged, async (req, res) => {
 // @desc    Update account data
 // @access  Private
 router.get("/update", isLogged, async (req, res) => {
-  console.log("START UPDATE");
   // get accounts
   const accounts = await Accounts.find();
-  console.log("GOT ACCOUNTS");
 
   const decoded = accounts.map(item => ({
     ...item._doc,
     token: jwt.verify(item.token, secretOrKey)
   }));
 
-  console.log("DECODED");
-
   asyncLoop(
     decoded,
     async (account, nextAccount) => {
-      console.log("NEW ACCOUNT");
-
       // get updated threads
       const { result, historyId } = await getAccountHistory(account);
-      console.log("GOT getAccountHistory");
 
       // update account historyId
       const { _id } = account;
       await Accounts.findOneAndUpdate({ _id }, { $set: { historyId } });
-      console.log("UPDATE account");
 
-      if (result.length === 0) {
-        console.log("result = 0");
-        return nextAccount();
-      }
+      if (result.length === 0) return nextAccount();
 
       // all account labels
       const userLabels = await getAccountLabels(account);
-      console.log("GOT USER LABEL");
 
-      asyncLoop(result, async (id, nextId) => {
-        // retrieve thread data
-        const options = { id, userLabels, email: account.email };
-        const threadData = await getThreadDataById(options);
-        console.log("getThreadDataById");
-
-        // check if the thread in db
-        const theThread = await Thread.findOne({ threadId: id });
-
-        // if there is new thread -
-        if (theThread) {
-          await Thread.findOneAndDelete({ _id: theThread._id });
-        }
-
-        // save new thread
-        const newThread = new Thread(threadData);
-        await newThread.save();
-        console.log("saved or updated");
-        nextId();
-      });
+      // update user threads
+      await updateUserThreads(result, userLabels, account);
 
       nextAccount();
     },
