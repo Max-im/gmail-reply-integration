@@ -45,8 +45,7 @@ router.post("/login", async (req, res) => {
 // @desc    Get credentials
 // @access  Public
 router.get("/cred", (req, res) => {
-  console.log(userScope.join(" "));
-  res.json({ client_id: userClientId, scope: userScope.join(" ") });
+  res.json({ client_id: userClientId, scope: userScope });
 });
 
 module.exports = router;
