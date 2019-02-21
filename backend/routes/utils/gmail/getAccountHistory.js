@@ -13,7 +13,11 @@ module.exports = account => {
   let theHistoryId = false;
 
   return new Promise((resolve, reject) => {
-    const options = { userId: "me", startHistoryId: account.historyId };
+    const options = {
+      userId: "me",
+      startHistoryId: account.historyId,
+      maxResults: 500
+    };
     gmail.users.history.list(options, (err, res) => {
       if (err) return console.error(err);
       asyncLoop(arr, (page, nextPage) => {
@@ -35,7 +39,7 @@ module.exports = account => {
 
         // if exists next page go on it
         if (nextPageToken) {
-          options.startHistoryId = historyId;
+          options.pageToken = nextPageToken;
           console.log("NEXT PAGE");
           nextPage();
         } else {
