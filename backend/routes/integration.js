@@ -120,7 +120,10 @@ router.get("/update", isLogged, async (req, res) => {
 
       nextAccount();
     },
-    () => res.json()
+    () => {
+      console.log("end all loops");
+      res.json();
+    }
   );
 });
 
