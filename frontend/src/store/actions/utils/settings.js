@@ -10,7 +10,7 @@ export const getAccountThreads = id => {
       .then(res => resolve(res.data))
       .catch(err => {
         reject("Error getting threads");
-        console.log(err.response.data);
+        console.error(err.response.data);
       });
   });
 };
@@ -42,7 +42,7 @@ export const retrieveThreadsData = (threads, id, dispatch) => {
             nextThread();
           })
           .catch(err => {
-            console.log(err);
+            console.error(err);
             reject(err.response.data);
           });
       },
@@ -59,7 +59,7 @@ export const storeThreadsInDb = threadData => {
       .then(() => resolve())
       .catch(err => {
         reject("Error saving in db");
-        console.log(err.response.data);
+        console.error(err.response.data);
       });
   });
 };

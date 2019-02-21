@@ -22,7 +22,7 @@ export const getTokenFromCode = code => {
         resolve(res.data);
       })
       .catch(err => {
-        console.log(err.response.data);
+        console.error(err.response.data);
         reject("Error retrieving tokin");
       });
   });

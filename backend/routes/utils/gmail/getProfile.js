@@ -15,8 +15,8 @@ module.exports = tokens => {
             const { historyId } = res.data;
             resolve({ gId, name, img, email, historyId });
           })
-          .catch(err => console.log(err.response.data));
+          .catch(err => console.error(err.response.data));
       })
-      .catch(err => console.log(err.response.data));
+      .catch(err => console.error(err.response.data));
   });
 };

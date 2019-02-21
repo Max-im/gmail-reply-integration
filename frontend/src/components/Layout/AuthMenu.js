@@ -19,7 +19,6 @@ export class AuthMenu extends Component {
 
   render() {
     const { isAuth, user, client_id, scope } = this.props.auth;
-    console.log(client_id, scope, "client_id, scope");
     return (
       <div>
         {isAuth ? (

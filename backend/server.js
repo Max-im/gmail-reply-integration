@@ -29,7 +29,7 @@ if (!isProduction) {
 const MONGO_DB = require("./config").MONGO_DB;
 mongoose
   .connect(MONGO_DB, { useNewUrlParser: true })
-  .then(() => console.log("db start"));
+  .then(() => console.info("db start"));
 
 // Routing export
 const auth = require("./routes/auth");
@@ -49,4 +49,4 @@ if (isProduction) {
 }
 
 // Listen
-app.listen(port, process.env.IP, () => console.log("server is runing"));
+app.listen(port, process.env.IP, () => console.info("server is runing"));

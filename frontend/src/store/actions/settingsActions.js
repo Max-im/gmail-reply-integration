@@ -69,7 +69,7 @@ export const removeAccount = id => dispatch => {
     })
     .catch(err => {
       dispatch({ type: END_PROCESS });
-      console.log(err.response.data);
+      console.error(err.response.data);
     });
 };
 
@@ -81,7 +81,7 @@ export const getLabels = () => dispatch => {
       dispatch({ type: GET_LABELS, payload: res.data });
       dispatch({ type: END_PROCESS });
     })
-    .catch(err => console.log(err));
+    .catch(err => console.error(err));
 };
 
 // toggle label action
@@ -92,6 +92,6 @@ export const toggleLabelAction = (id, value) => dispatch => {
     .then(res => dispatch(getLabels()))
     .catch(err => {
       dispatch({ type: END_PROCESS });
-      console.log(err.response.data);
+      console.error(err.response.data);
     });
 };

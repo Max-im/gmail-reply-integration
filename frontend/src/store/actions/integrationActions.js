@@ -92,7 +92,7 @@ export const onLaunch = sheetName => async (dispatch, getState) => {
     // show success
     dispatch({ type: SUCCESS_EMIT, payload: "Integration complete" });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     dispatch({ type: ERROR_EMIT, payload: err.response.data });
   }
   dispatch({ type: END_PROCESS });

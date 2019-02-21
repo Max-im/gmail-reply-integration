@@ -22,8 +22,8 @@ module.exports = ({ id, userLabels, email }) => {
           result.people = retrievePeopleFromThread(res.data.messages);
         } catch (err) {
           // save error
-          console.log(err);
-          console.log("Error retrieve people. " + id);
+          console.error(err);
+          console.error("Error retrieve people. " + id);
         }
 
         // retrieve labels

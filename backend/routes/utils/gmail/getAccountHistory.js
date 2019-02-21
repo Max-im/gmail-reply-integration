@@ -15,7 +15,7 @@ module.exports = account => {
   return new Promise((resolve, reject) => {
     const options = { userId: "me", startHistoryId: account.historyId };
     gmail.users.history.list(options, (err, res) => {
-      if (err) return console.log(err);
+      if (err) return console.error(err);
       asyncLoop(arr, (page, nextPage) => {
         const { history, historyId } = res.data;
         // store first got history id
