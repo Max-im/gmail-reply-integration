@@ -1,6 +1,6 @@
 const asyncLoop = require("node-async-loop");
 const getThreadDataById = require("../gmail/getThreadDataById");
-const Thread = requrie("../../../model/Threads");
+const Thread = require("../../../model/Threads");
 
 module.exports = (result, userLabels, account) => {
   return new Promise(resolve => {
