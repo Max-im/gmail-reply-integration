@@ -77,12 +77,16 @@ router.get("/update", isLogged, async (req, res) => {
   asyncLoop(
     decoded,
     async (account, nextAccount) => {
+      console.log("NEW ACCOUNT");
+
       // get updated threads
       const { result, historyId } = await getAccountHistory(account);
+      console.log("GOT getAccountHistory");
 
       // update account historyId
       const { _id } = account;
       await Accounts.findOneAndUpdate({ _id }, { $set: { historyId } });
+      console.log("UPDATE account");
 
       if (result.length === 0) {
         return nextAccount();
@@ -90,11 +94,13 @@ router.get("/update", isLogged, async (req, res) => {
 
       // all account labels
       const userLabels = await getAccountLabels(account);
+      console.log("GOT USER LABEL");
 
       asyncLoop(result, async (id, nextId) => {
         // retrieve thread data
         const options = { id, userLabels, email: account.email };
         const threadData = await getThreadDataById(options);
+        console.log("getThreadDataById");
 
         // check if the thread in db
         const theThread = await Thread.findOne({ threadId: id });
@@ -107,7 +113,7 @@ router.get("/update", isLogged, async (req, res) => {
         // save new thread
         const newThread = new Thread(threadData);
         await newThread.save();
-
+        console.log("saved or updated");
         nextId();
       });
 
