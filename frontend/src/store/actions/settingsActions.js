@@ -11,7 +11,8 @@ import {
   getAccountThreads,
   retrieveThreadsData,
   storeThreadsInDb,
-  filterNewThreads
+  filterNewThreads,
+  getAccountLabels
 } from "./utils/settings";
 
 import { addInfo, addError } from "./utils/general";
@@ -41,8 +42,12 @@ export const uploadAccountData = id => async dispatch => {
   dispatch({ type: UPLOAD_PROGRESS, payload: "0%" });
 
   try {
+    // get account labels
+    const labels = await getAccountLabels(id);
+
     // get all threads ids
-    const threadsIdArr = await getAccountThreads(id);
+    const threadsIdArr = await getAccountThreads(id, labels);
+    console.log("all threads", threadsIdArr);
 
     // filter new threads
     const { newThreads, inDb } = await filterNewThreads(threadsIdArr, id);

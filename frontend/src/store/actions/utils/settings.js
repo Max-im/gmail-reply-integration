@@ -2,13 +2,54 @@ import axios from "axios";
 import asyncLoop from "node-async-loop";
 import { addInfo, showInfoLoop } from "./general";
 
-// get all threads ids
-export const getAccountThreads = id => {
+// get account labels
+export const getAccountLabels = id => {
   return new Promise((resolve, reject) => {
     axios
-      .post("/settings/upload-account", { id })
+      .get(`/settings/account-labels/${id}`)
       .then(res => resolve(res.data))
       .catch(err => reject(err));
+  });
+};
+
+// get all threads ids
+export const getAccountThreads = (id, labels) => {
+  const arr = [];
+  for (var i = 0; i < 1000; i++) {
+    arr.push(i);
+  }
+  const result = [];
+  return new Promise((resolve, reject) => {
+    asyncLoop(
+      labels,
+      (labelId, nextLabel) => {
+        const options = { userId: "me", maxResults: 500, labelIds: [labelId] };
+
+        asyncLoop(arr, (page, nextPage) => {
+          axios
+            .post("/settings/upload-account", { id, options })
+            .then(res => {
+              const { nextPageToken, threads } = res.data;
+              if (threads && threads.length > 0) {
+                result.push(...threads);
+              }
+              if (nextPageToken) {
+                options.pageToken = nextPageToken;
+                nextPage();
+              } else {
+                return nextLabel();
+              }
+            })
+            .catch(err => reject(err));
+        });
+      },
+      () => {
+        const uniq = result
+          .map(item => item.id)
+          .filter((v, i, a) => a.indexOf(v) === i);
+        resolve(uniq);
+      }
+    );
   });
 };
 

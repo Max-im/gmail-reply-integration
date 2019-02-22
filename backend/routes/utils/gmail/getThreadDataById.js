@@ -8,8 +8,8 @@ module.exports = ({ id, userLabels, email }) => {
     .map(item => item.id);
 
   const gmail = google.gmail({ version: "v1", auth });
-
   const result = { threadId: id, labels: [], people: [], body: [], email };
+
   return new Promise((resolve, reject) => {
     const options = { id, userId: "me" };
     gmail.users.threads.get(options, (err, res) => {

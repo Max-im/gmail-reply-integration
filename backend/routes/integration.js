@@ -11,6 +11,7 @@ const Accounts = require("../model/Accounts");
 
 const getFiles = require("./utils/spreadSheet/getFiles");
 const getSheetNames = require("./utils/spreadSheet/getSheetNames");
+const getDbAccounts = require("./utils/db/getDbAccounts");
 const getSheetData = require("./utils/spreadSheet/getSheetData");
 const updateUserThreads = require("./utils/common/updateUserThreads");
 const outputSheetData = require("./utils/spreadSheet/outputSheetData");
@@ -72,15 +73,10 @@ router.get("/sheet/:fileId/:sheetName", isLogged, async (req, res) => {
 router.get("/update", isLogged, async (req, res) => {
   try {
     // get accounts
-    const accounts = await Accounts.find();
-
-    const decoded = accounts.map(item => ({
-      ...item._doc,
-      token: jwt.verify(item.token, secretOrKey)
-    }));
+    const accounts = await getDbAccounts();
 
     asyncLoop(
-      decoded,
+      accounts,
       async (account, nextAccount) => {
         // get updated threads
         const { result, historyId } = await getAccountHistory(account);

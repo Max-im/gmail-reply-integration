@@ -43,7 +43,7 @@ export default (state = initialState, action) => {
     case CLOSE_ERROR:
       return {
         ...state,
-        errors: [...state.errors.filter(item => item !== action.payload)]
+        errors: [...state.errors.filter(item => item.id !== action.payload)]
       };
 
     // info

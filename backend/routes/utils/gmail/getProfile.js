@@ -1,7 +1,7 @@
 const axios = require("axios");
 
 module.exports = tokens => {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     const options = {
       headers: { Authorization: `Bearer ${tokens.access_token}` }
     };
@@ -15,8 +15,8 @@ module.exports = tokens => {
             const { historyId } = res.data;
             resolve({ gId, name, img, email, historyId });
           })
-          .catch(err => console.error(err.response.data));
+          .catch(err => reject(err));
       })
-      .catch(err => console.error(err.response.data));
+      .catch(err => reject(err));
   });
 };

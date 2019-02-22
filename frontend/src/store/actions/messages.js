@@ -1,7 +1,7 @@
 import { CLOSE_ERROR, SUCCESS_EMIT } from "./constants";
 
-export const closeError = index => dispatch => {
-  dispatch({ type: CLOSE_ERROR, payload: index });
+export const closeError = id => dispatch => {
+  dispatch({ type: CLOSE_ERROR, payload: id });
 };
 
 export const closeSuccess = () => dispatch => {

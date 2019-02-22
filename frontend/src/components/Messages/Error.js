@@ -16,11 +16,11 @@ export class Error extends Component {
     let content;
     if (isError) {
       content = errors.map(item => (
-        <li key={item} className="errors__item">
-          {item}
+        <li key={item.id} className="errors__item">
+          {item.value}
           <i
             className="far fa-times-circle errors__close"
-            onClick={this.props.closeError.bind(this, item)}
+            onClick={this.props.closeError.bind(this, item.id)}
           />
         </li>
       ));

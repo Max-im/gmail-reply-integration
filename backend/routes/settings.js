@@ -8,6 +8,7 @@ const getAccountLabels = require("./utils/gmail/getAccountLabels");
 const storeNewLabels = require("./utils/db/storeNewLabels");
 const removeOldLabels = require("./utils/db/removeOldLabels");
 const getThreadDataById = require("./utils/gmail/getThreadDataById");
+const getAccountById = require("./utils/db/getAccountById");
 
 const Accounts = require("../model/Accounts");
 const Label = require("../model/Label");
@@ -68,29 +69,37 @@ router.get("/accounts/oauth", async (req, res) => {
   }
 });
 
-// @route   POST settings/upload-accoutns
+// @route   GET settings/account-labels/:accId
 // @desc    Upload all Threads labeled user labels
 // @access  Private
-router.post("/upload-account", isLogged, async (req, res) => {
+router.get("/account-labels/:accId", isLogged, async (req, res) => {
   try {
-    const { id: _id } = req.body;
-    const theAccount = await Accounts.findOne({ _id });
-
-    const decoded = {
-      ...theAccount._doc,
-      token: jwt.verify(theAccount.token, secretOrKey)
-    };
+    const { accId: _id } = req.params;
+    const theAccount = await getAccountById(_id);
 
     // all account labels
-    const accountLabels = await getAccountLabels(decoded);
+    const accountLabels = await getAccountLabels(theAccount);
 
     // filter user labels id
     const targetLabelsId = accountLabels
       .filter(item => item.type === "user")
       .map(item => item.id);
-    if (targetLabelsId.length === 0) return res.json([]);
 
-    const threads = await getAllThreads(decoded, targetLabelsId);
+    res.json(targetLabelsId);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
+
+// @route   POST settings/upload-accoutns
+// @desc    Upload all Threads labeled user labels
+// @access  Private
+router.post("/upload-account", isLogged, async (req, res) => {
+  try {
+    const { id: _id, options } = req.body;
+    const theAccount = await getAccountById(_id);
+
+    const threads = await getAllThreads(theAccount, options);
 
     res.json(threads);
   } catch (err) {

@@ -1,5 +1,4 @@
 const base64 = require("js-base64");
-const axios = require("axios");
 
 module.exports = function parseBodyAndLabels(data) {
   // get body

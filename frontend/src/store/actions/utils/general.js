@@ -1,4 +1,5 @@
 import axios from "axios";
+import keygen from "keygenerator";
 import {
   ADD_INFO,
   CLOSE_INFO,
@@ -32,16 +33,22 @@ export const addError = (err, dispatch) => {
     err.response.data.error &&
     err.response.data.error.message
   ) {
-    dispatch({ type: ERROR_EMIT, payload: err.response.data.error.message });
+    dispatch({
+      type: ERROR_EMIT,
+      payload: { value: err.response.data.error.message, id: keygen._() }
+    });
   } else if (
     err &&
     err.response &&
     err.response.data &&
     typeof err.response.data === "string"
   ) {
-    dispatch({ type: ERROR_EMIT, payload: err.response.data });
+    dispatch({
+      type: ERROR_EMIT,
+      payload: { value: err.response.data, id: keygen._() }
+    });
   } else if (err && typeof err === "string") {
-    dispatch({ type: ERROR_EMIT, payload: err });
+    dispatch({ type: ERROR_EMIT, payload: { value: err, id: keygen._() } });
   } else {
     console.error(err);
   }
@@ -53,8 +60,8 @@ export const showInfoLoop = (counter, newThreads, inDb, dispatch) => {
     ((counter + inDb.length) / (newThreads.length + inDb.length)) * 100
   );
 
-  dispatch({ type: UPLOAD_PROGRESS, payload: persent + "%" });
   if (counter % 20 === 0) {
+    dispatch({ type: UPLOAD_PROGRESS, payload: persent + "%" });
     addInfo(
       `Handled ${persent}% ( ${counter + inDb.length} from ${newThreads.length +
         inDb.length} )`,
