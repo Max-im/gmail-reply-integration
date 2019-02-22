@@ -10,7 +10,10 @@ import { getAccoutns, getLabels } from "../../../store/actions/settingsActions";
 
 class Settings extends Component {
   componentDidMount() {
-    this.props.getAccoutns();
+    const { accounts } = this.props.settings;
+    if (accounts.length === 0) {
+      this.props.getAccoutns(true);
+    }
     this.props.getLabels();
   }
 

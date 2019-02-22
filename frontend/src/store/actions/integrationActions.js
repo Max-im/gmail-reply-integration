@@ -16,47 +16,48 @@ import { addInfo, addError } from "./utils/general";
 
 // get names of the files
 export const uploadFileNames = () => async dispatch => {
-  dispatch({ type: START_PROCESS });
   try {
+    dispatch({ type: START_PROCESS });
     const { data: files } = await axios.get("/integration/files");
     dispatch({ type: GET_FILES, payload: files });
+    dispatch({ type: END_PROCESS });
   } catch (err) {
     addError(err, dispatch);
   }
-  dispatch({ type: END_PROCESS });
 };
 
 // get sheet names
 export const onGetSheets = file => async dispatch => {
-  dispatch({ type: START_PROCESS });
-  dispatch({ type: CHANGE_STAGE, payload: 2 });
-  dispatch({ type: SELECT_FILE, payload: file });
   try {
+    dispatch({ type: START_PROCESS });
+    dispatch({ type: CHANGE_STAGE, payload: 2 });
+    dispatch({ type: SELECT_FILE, payload: file });
     const { data: sheets } = await axios.get(`/integration/file/${file.id}`);
     dispatch({ type: GET_SHEETS, payload: sheets });
+    dispatch({ type: END_PROCESS });
   } catch (err) {
     addError(err, dispatch);
   }
-  dispatch({ type: END_PROCESS });
 };
 
 // integration launch
 export const onLaunch = sheetName => async (dispatch, getState) => {
-  dispatch({ type: START_PROCESS });
-  dispatch({ type: SUCCESS_EMIT, payload: false });
-  const state = getState();
-  const { theFile } = state.integration;
-  const { accounts } = state.settings;
-
-  // check if all the accounts are uploaded
-  if (accounts.some(item => !item.isUploaded)) {
-    dispatch({ type: END_PROCESS });
-    addError("You must upload Accounts first", dispatch);
-  }
-
-  dispatch({ type: SELECT_SHEET, payload: sheetName });
-
   try {
+    dispatch({ type: SUCCESS_EMIT, payload: false });
+    dispatch({ type: START_PROCESS });
+
+    const state = getState();
+    const { theFile } = state.integration;
+    const { accounts } = state.settings;
+
+    // check if all the accounts are uploaded
+    console.log();
+    if (accounts.some(item => !item.isUploaded)) {
+      return addError("You must upload Accounts first", dispatch);
+    }
+
+    dispatch({ type: SELECT_SHEET, payload: sheetName });
+
     // get sheet data
     const { data: emailArr } = await axios.get(
       `/integration/sheet/${theFile.id}/${sheetName}`
@@ -95,6 +96,10 @@ export const onLaunch = sheetName => async (dispatch, getState) => {
 
 // cancel btn click
 export const onIntegrationCancel = () => dispatch => {
-  dispatch({ type: CHANGE_STAGE, payload: 1 });
-  dispatch({ type: SELECT_FILE, payload: false });
+  try {
+    dispatch({ type: CHANGE_STAGE, payload: 1 });
+    dispatch({ type: SELECT_FILE, payload: false });
+  } catch (err) {
+    addError(err, dispatch);
+  }
 };

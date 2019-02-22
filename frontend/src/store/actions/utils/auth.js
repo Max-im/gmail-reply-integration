@@ -1,11 +1,11 @@
 import axios from "axios";
 
-export const getTokenFromCode = (
+export const getTokenFromCode = ({
   code,
   redirect_uri,
   client_id,
   client_secret
-) => {
+}) => {
   return new Promise((resolve, reject) => {
     axios
       .post(

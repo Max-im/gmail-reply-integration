@@ -7,7 +7,10 @@ import { onLogout, onLogin, getLoginCred } from "../../store/actions/auth";
 
 export class AuthMenu extends Component {
   componentDidMount() {
-    this.props.getLoginCred();
+    const { isAuth } = this.props.auth;
+    if (!isAuth) {
+      this.props.getLoginCred();
+    }
   }
 
   static propTypes = {

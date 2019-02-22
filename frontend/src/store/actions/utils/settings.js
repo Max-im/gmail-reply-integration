@@ -67,7 +67,6 @@ export const retrieveThreadsData = ({ newThreads, id, inDb, dispatch }) => {
       (threadId, nextThread) => {
         counter++;
         showInfoLoop(counter, newThreads, inDb, dispatch);
-        console.log(`/settings/get-thread-data/${threadId}/${id}`);
         axios
           .get(`/settings/get-thread-data/${threadId}/${id}`)
           .then(res => {

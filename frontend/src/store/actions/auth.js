@@ -17,12 +17,8 @@ export const onLogin = response => async (dispatch, getStore) => {
   const { redirect_url, client_id, client_secret } = store.auth;
   try {
     const { code } = response;
-    const token = await getTokenFromCode(
-      code,
-      redirect_url,
-      client_id,
-      client_secret
-    );
+    const options = { redirect_url, client_id, client_secret, code };
+    const token = await getTokenFromCode(options);
 
     axios
       .post("/auth/login", { token })
@@ -45,10 +41,14 @@ export const onLogin = response => async (dispatch, getStore) => {
 
 // Logout
 export const onLogout = () => dispatch => {
-  if (!window.confirm("Do you want to Logout?")) return;
-  localStorage.removeItem("outBandSales");
-  setAuthToken(false);
-  dispatch({ type: LOGOUT });
+  try {
+    if (!window.confirm("Do you want to Logout?")) return;
+    localStorage.removeItem("outBandSales");
+    setAuthToken(false);
+    dispatch({ type: LOGOUT });
+  } catch (err) {
+    addError(err, dispatch);
+  }
 };
 
 // receive credentials
@@ -58,15 +58,8 @@ export const getLoginCred = () => dispatch => {
   axios
     .get("/auth/cred")
     .then(res => {
-      const { client_id, scope, redirect_url, client_secret } = res.data;
-      dispatch({
-        type: SAVE_AUTH_CRED,
-        payload: { client_id, scope, redirect_url, client_secret }
-      });
+      dispatch({ type: SAVE_AUTH_CRED, payload: { ...res.data } });
       dispatch({ type: END_PROCESS });
     })
-    .catch(err => {
-      addError(err, dispatch);
-      dispatch({ type: END_PROCESS });
-    });
+    .catch(err => addError(err, dispatch));
 };

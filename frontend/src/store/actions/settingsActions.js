@@ -18,12 +18,12 @@ import {
 import { addInfo, addError } from "./utils/general";
 
 // Get Accounts
-export const getAccoutns = () => dispatch => {
+export const getAccoutns = bool => dispatch => {
   axios
     .get("/settings/accounts")
     .then(res => {
       dispatch({ type: GET_ACCOUNTS, payload: res.data });
-      dispatch({ type: END_PROCESS });
+      if (bool) dispatch({ type: END_PROCESS });
     })
     .catch(err => addError(err, dispatch));
 };
@@ -38,10 +38,10 @@ export const createAccount = () => dispatch => {
 
 // upload Account Data
 export const uploadAccountData = id => async dispatch => {
-  dispatch({ type: START_PROCESS });
-  dispatch({ type: UPLOAD_PROGRESS, payload: "0%" });
-
   try {
+    dispatch({ type: START_PROCESS });
+    dispatch({ type: UPLOAD_PROGRESS, payload: "0%" });
+
     // get account labels
     const labels = await getAccountLabels(id);
 
