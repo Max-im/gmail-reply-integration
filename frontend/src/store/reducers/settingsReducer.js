@@ -1,10 +1,15 @@
-import { GET_ACCOUNTS, GET_LABELS } from "../actions/constants";
+import {
+  GET_ACCOUNTS,
+  GET_LABELS,
+  UPLOAD_PROGRESS
+} from "../actions/constants";
 
 const initialState = {
   accounts: [],
   labels: [],
   accountsReady: false,
-  labelsReady: false
+  labelsReady: false,
+  uploadProgress: "0%"
 };
 
 export default (state = initialState, action) => {
@@ -21,6 +26,12 @@ export default (state = initialState, action) => {
         ...state,
         labels: action.payload,
         labelsReady: true
+      };
+
+    case UPLOAD_PROGRESS:
+      return {
+        ...state,
+        uploadProgress: action.payload
       };
 
     default:

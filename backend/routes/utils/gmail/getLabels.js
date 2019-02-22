@@ -14,10 +14,7 @@ module.exports = accounts => {
         const gmail = google.gmail({ version: "v1", auth });
 
         gmail.users.labels.list({ userId }, (err, res) => {
-          if (err) {
-            console.error(err.response.data, "error getting labels");
-            return reject({ msg: err.response.data });
-          }
+          if (err) return reject(err);
 
           const labelsName = res.data.labels
             .filter(item => item.type === "user")

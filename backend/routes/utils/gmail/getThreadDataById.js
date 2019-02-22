@@ -13,9 +13,8 @@ module.exports = ({ id, userLabels, email }) => {
   return new Promise((resolve, reject) => {
     const options = { id, userId: "me" };
     gmail.users.threads.get(options, (err, res) => {
-      if (err) {
-        return console.error("getting particular thread data error", err);
-      }
+      if (err) return reject(err);
+
       if (res.data.messages) {
         // retrieve people
         try {

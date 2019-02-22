@@ -5,11 +5,9 @@ module.exports = account => {
   auth.setCredentials(account.token);
   const gmail = google.gmail({ version: "v1", auth });
 
-  return new Promise(async resolve => {
+  return new Promise(async (resolve, reject) => {
     gmail.users.labels.list({ userId: "me" }, (err, res) => {
-      if (err) {
-        console.error("getting Account target labels error", err.response.data);
-      }
+      if (err) return reject(err);
       resolve(res.data.labels);
     });
   });

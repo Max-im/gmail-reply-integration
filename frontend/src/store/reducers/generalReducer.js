@@ -36,7 +36,8 @@ export default (state = initialState, action) => {
     case ERROR_EMIT:
       return {
         ...state,
-        errors: [...state.errors, action.payload]
+        errors: [...state.errors, action.payload],
+        inProcess: false
       };
 
     case CLOSE_ERROR:

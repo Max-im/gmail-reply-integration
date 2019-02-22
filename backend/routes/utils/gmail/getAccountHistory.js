@@ -19,7 +19,7 @@ module.exports = account => {
       maxResults: 500
     };
     gmail.users.history.list(options, (err, res) => {
-      if (err) return console.error(err);
+      if (err) return reject(err);
       asyncLoop(arr, (page, nextPage) => {
         const { history, historyId, nextPageToken } = res.data;
         // store first got history id

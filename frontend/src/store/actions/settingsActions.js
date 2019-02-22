@@ -2,18 +2,19 @@ import axios from "axios";
 import {
   GET_ACCOUNTS,
   GET_LABELS,
-  ERROR_EMIT,
   START_PROCESS,
+  UPLOAD_PROGRESS,
   END_PROCESS
 } from "./constants";
 
 import {
   getAccountThreads,
   retrieveThreadsData,
-  storeThreadsInDb
+  storeThreadsInDb,
+  filterNewThreads
 } from "./utils/settings";
 
-import { addInfo } from "./utils/general";
+import { addInfo, addError } from "./utils/general";
 
 // Get Accounts
 export const getAccoutns = () => dispatch => {
@@ -23,30 +24,32 @@ export const getAccoutns = () => dispatch => {
       dispatch({ type: GET_ACCOUNTS, payload: res.data });
       dispatch({ type: END_PROCESS });
     })
-    .catch(err => console.error(err.response.data));
+    .catch(err => addError(err, dispatch));
 };
 
 // Create Account
-export const createAccount = () => () => {
+export const createAccount = () => dispatch => {
   axios
     .get("/settings/accounts/google")
-    .then(res => {
-      console.log(res.data.url);
-      window.location.href = res.data.url;
-    })
-    .catch(err => console.error(err.response.data));
+    .then(res => (window.location.href = res.data.url))
+    .catch(err => addError(err, dispatch));
 };
 
 // upload Account Data
 export const uploadAccountData = id => async dispatch => {
   dispatch({ type: START_PROCESS });
+  dispatch({ type: UPLOAD_PROGRESS, payload: "0%" });
 
   try {
     // get all threads ids
     const threadsIdArr = await getAccountThreads(id);
 
+    // filter new threads
+    const { newThreads, inDb } = await filterNewThreads(threadsIdArr, id);
+
     // retrieve data each of the thread
-    const threadsData = await retrieveThreadsData(threadsIdArr, id, dispatch);
+    const options = { newThreads, id, inDb, dispatch };
+    const threadsData = await retrieveThreadsData(options);
 
     // store data in db
     await storeThreadsInDb(threadsData);
@@ -55,7 +58,7 @@ export const uploadAccountData = id => async dispatch => {
 
     dispatch(getAccoutns());
   } catch (err) {
-    dispatch({ type: ERROR_EMIT, payload: JSON.stringify(err) });
+    addError(err, dispatch);
   }
   dispatch({ type: END_PROCESS });
 };
@@ -66,13 +69,13 @@ export const removeAccount = id => dispatch => {
   dispatch({ type: START_PROCESS });
   axios
     .delete(`/settings/accounts/${id}`)
-    .then(res => {
+    .then(() => {
       dispatch(getAccoutns());
       dispatch(getLabels());
     })
     .catch(err => {
       dispatch({ type: END_PROCESS });
-      console.error(err.response.data);
+      addError(err, dispatch);
     });
 };
 
@@ -84,7 +87,7 @@ export const getLabels = () => dispatch => {
       dispatch({ type: GET_LABELS, payload: res.data });
       dispatch({ type: END_PROCESS });
     })
-    .catch(err => console.error(err));
+    .catch(err => addError(err, dispatch));
 };
 
 // toggle label action
@@ -92,9 +95,9 @@ export const toggleLabelAction = (id, value) => dispatch => {
   dispatch({ type: START_PROCESS });
   axios
     .post("/settings/labels", { id, value })
-    .then(res => dispatch(getLabels()))
+    .then(() => dispatch(getLabels()))
     .catch(err => {
       dispatch({ type: END_PROCESS });
-      console.error(err.response.data);
+      addError(err, dispatch);
     });
 };

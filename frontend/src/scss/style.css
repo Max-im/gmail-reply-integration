@@ -252,6 +252,7 @@ li {
   position: fixed;
   width: 100%;
   text-align: center;
+  z-index: 1001;
   margin: 70px 0 0 0;
   display: flex;
   flex-direction: column; }
@@ -286,7 +287,7 @@ li {
   z-index: 1001;
   right: 0px;
   bottom: 50px;
-  width: 250px; }
+  width: 300px; }
 
 .info__item {
   position: relative;
@@ -417,3 +418,32 @@ li {
 .account__img {
   border-radius: 50%;
   width: 40px; }
+
+.account__uploadBtn {
+  color: transparent;
+  position: relative;
+  border: 1px solid gray; }
+
+.account__uploadBtn:hover {
+  color: transparent !important; }
+
+.account__uploadBtn:before {
+  position: absolute;
+  content: "Upload";
+  color: #272727;
+  height: 100%;
+  width: 100%;
+  line-height: 35px;
+  left: 0;
+  top: 0;
+  z-index: 11; }
+
+.account__uploadBtn_progress {
+  position: absolute;
+  content: "";
+  background: #ffc107;
+  height: 100%;
+  transition: 0.3s;
+  left: 0;
+  top: 0;
+  z-index: 10; }

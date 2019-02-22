@@ -1,6 +1,6 @@
 import axios from "axios";
 import asyncLoop from "node-async-loop";
-import { addInfo } from "./general";
+import { addInfo, showInfoLoop } from "./general";
 
 // get all threads ids
 export const getAccountThreads = id => {
@@ -8,43 +8,31 @@ export const getAccountThreads = id => {
     axios
       .post("/settings/upload-account", { id })
       .then(res => resolve(res.data))
-      .catch(err => {
-        reject("Error getting threads");
-        console.error(err.response.data);
-      });
+      .catch(err => reject(err));
   });
 };
 
 // retrieve data each of the thread
-export const retrieveThreadsData = (threads, id, dispatch) => {
+export const retrieveThreadsData = ({ newThreads, id, inDb, dispatch }) => {
   return new Promise((resolve, reject) => {
     const threadData = [];
-    addInfo(`Got ${threads.length} threads`, dispatch);
+    addInfo(`Got ${newThreads.length + inDb.length} threads`, dispatch);
     addInfo(`Start fetching the threads data`, dispatch);
 
     let counter = 0;
     asyncLoop(
-      threads,
+      newThreads,
       (thread, nextThread) => {
         counter++;
-        if (counter % 20 === 0) {
-          addInfo(
-            `Handled ${Math.round(
-              (counter / threads.length) * 100
-            )}% ( ${counter} from ${threads.length} )`,
-            dispatch
-          );
-        }
+        showInfoLoop(counter, newThreads, inDb, dispatch);
+
         axios
           .get(`/settings/get-thread-data/${thread.id}/${id}`)
           .then(res => {
             threadData.push(res.data);
             nextThread();
           })
-          .catch(err => {
-            console.error(err);
-            reject(err.response.data);
-          });
+          .catch(err => reject(err));
       },
       () => resolve(threadData)
     );
@@ -57,9 +45,19 @@ export const storeThreadsInDb = threadData => {
     axios
       .post("/settings/store-uploaded", { threadData })
       .then(() => resolve())
-      .catch(err => {
-        reject("Error saving in db");
-        console.error(err.response.data);
-      });
+      .catch(err => reject(err));
+  });
+};
+
+// filter new threads
+export const filterNewThreads = (threads, id) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(`/settings/get-db-threads/${id}`)
+      .then(res => {
+        const newThreads = threads.filter(item => !res.data.includes(item.id));
+        resolve({ newThreads, inDb: res.data });
+      })
+      .catch(err => reject(err));
   });
 };

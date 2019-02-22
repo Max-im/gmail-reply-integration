@@ -11,17 +11,14 @@ module.exports = (account, targetLabelsId) => {
     arr.push(i);
   }
 
-  return new Promise(async resolve => {
+  return new Promise(async (resolve, reject) => {
     asyncLoop(
       targetLabelsId,
       (labelId, nextLabel) => {
         const options = { userId: "me", maxResults: 500, labelIds: [labelId] };
         asyncLoop(arr, (page, nextPage) => {
           gmail.users.threads.list(options, (err, res) => {
-            if (err) {
-              console.error(err, "error getting threads");
-              return reject({ msg: err });
-            }
+            if (err) return reject(err);
 
             if (!res.data.threads) return nextLabel();
 

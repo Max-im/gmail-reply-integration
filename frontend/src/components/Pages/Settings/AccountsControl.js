@@ -10,7 +10,7 @@ import {
 
 class AccountsControl extends Component {
   render() {
-    const { accounts } = this.props.settings;
+    const { accounts, uploadProgress } = this.props.settings;
     const isVisible = accounts.length > 0;
     let content;
     if (isVisible) {
@@ -26,17 +26,21 @@ class AccountsControl extends Component {
               <Moment format="MMM.DD.YYYY">{item.date}</Moment>
             ) : (
               <p
-                className="btn btn-warning"
+                className="btn btn-light account__uploadBtn"
                 onClick={this.props.uploadAccountData.bind(this, item._id)}
               >
                 Upload
+                <span
+                  className="account__uploadBtn_progress"
+                  style={{ width: uploadProgress }}
+                />
               </p>
             )}
           </td>
           <td>
             {" "}
             <p
-              className="btn btn-light"
+              className="btn btn-danger"
               onClick={this.props.removeAccount.bind(this, item._id)}
             >
               Delete

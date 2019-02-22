@@ -30,61 +30,75 @@ router.get("/test", (req, res) => res.json({ settings: "success" }));
 // @desc    Return all accounts
 // @access  Private
 router.get("/accounts", isLogged, async (req, res) => {
-  const accounts = await Accounts.find({});
-  res.json(accounts);
+  try {
+    const accounts = await Accounts.find({});
+    res.json(accounts);
+  } catch (err) {
+    res.status(400).json(err);
+  }
 });
 
 // @route   GET settings/accoutns/google
 // @desc    Create new Account
 // @access  Private
 router.get("/accounts/google", isLogged, (req, res) => {
-  console.log("start creating");
-  const url = auth.generateAuthUrl({ access_type: "offline", scope });
-  res.json({ url });
+  try {
+    const url = auth.generateAuthUrl({ access_type: "offline", scope });
+    res.json({ url });
+  } catch (err) {
+    res.status(400).json(err);
+  }
 });
 
 router.get("/accounts/oauth", async (req, res) => {
-  console.log("+++++++++++++++++++++++ here");
-  const { code } = req.query;
-  const { tokens } = await auth.getToken(code);
-  const user = await getProfile(tokens);
-  user.token = jwt.sign(tokens, secretOrKey);
-  const theAccount = await Accounts.findOne({ gId: user.gId });
+  try {
+    const { code } = req.query;
+    const { tokens } = await auth.getToken(code);
+    const user = await getProfile(tokens);
+    user.token = jwt.sign(tokens, secretOrKey);
+    const theAccount = await Accounts.findOne({ gId: user.gId });
 
-  if (theAccount) return res.redirect(redirect_uri2);
+    if (theAccount) return res.redirect(redirect_uri2);
 
-  const newAccount = new Accounts(user);
-  await newAccount.save();
-  res.redirect(redirect_uri2);
+    const newAccount = new Accounts(user);
+    await newAccount.save();
+    res.redirect(redirect_uri2);
+  } catch (err) {
+    console.error(err);
+  }
 });
 
 // @route   POST settings/upload-accoutns
 // @desc    Upload all Threads labeled user labels
 // @access  Private
 router.post("/upload-account", isLogged, async (req, res) => {
-  const { id: _id } = req.body;
-  const theAccount = await Accounts.findOne({ _id });
+  try {
+    const { id: _id } = req.body;
+    const theAccount = await Accounts.findOne({ _id });
 
-  const decoded = {
-    ...theAccount._doc,
-    token: jwt.verify(theAccount.token, secretOrKey)
-  };
+    const decoded = {
+      ...theAccount._doc,
+      token: jwt.verify(theAccount.token, secretOrKey)
+    };
 
-  // all account labels
-  const accountLabels = await getAccountLabels(decoded);
+    // all account labels
+    const accountLabels = await getAccountLabels(decoded);
 
-  // filter user labels id
-  const targetLabelsId = accountLabels
-    .filter(item => item.type === "user")
-    .map(item => item.id);
-  if (targetLabelsId.length === 0) return res.json([]);
+    // filter user labels id
+    const targetLabelsId = accountLabels
+      .filter(item => item.type === "user")
+      .map(item => item.id);
+    if (targetLabelsId.length === 0) return res.json([]);
 
-  const threads = await getAllThreads(decoded, targetLabelsId);
+    const threads = await getAllThreads(decoded, targetLabelsId);
 
-  res.json(threads);
+    res.json(threads);
+  } catch (err) {
+    res.status(400).json(err);
+  }
 });
 
-// @route   GET settings/get-thread-data/:threadId/:accountId
+// @route   GET settings/get-thread-data/:thId/:accountId
 // @desc    Retrieve data from particular thread
 // @access  Private
 router.get(
@@ -126,56 +140,92 @@ router.get(
 // @desc    Save threads in db
 // @access  Private
 router.post("/store-uploaded", isLogged, async (req, res) => {
-  const { threadData } = req.body;
-  await Accounts.findOneAndUpdate(
-    { email: threadData[0].email },
-    { $set: { isUploaded: true } }
-  );
-  res.json();
+  try {
+    const { threadData } = req.body;
+    await Accounts.findOneAndUpdate(
+      { email: threadData[0].email },
+      { $set: { isUploaded: true } }
+    );
+    res.json();
+  } catch (err) {
+    res.status(400).json(err);
+  }
 });
 
 // @route   DELETE settings/accoutns/:id
 // @desc    Remove Account
 // @access  Private
 router.delete("/accounts/:id", isLogged, async (req, res) => {
-  const { id: _id } = req.params;
-  const removedAccount = await Accounts.findOneAndDelete({ _id });
-  const { email } = removedAccount;
-  await Thread.deleteMany({ email });
-  await res.json();
+  try {
+    const { id: _id } = req.params;
+    const removedAccount = await Accounts.findOneAndDelete({ _id });
+    // remove all account threads
+    const { email } = removedAccount;
+    await Thread.deleteMany({ email });
+    await res.json();
+  } catch (err) {
+    res.status(400).json(err);
+  }
 });
 
 // @route   GET settings/labels
 // @desc    Get labels
 // @access  Private
 router.get("/labels", async (req, res) => {
-  // get accounts
-  const accounts = await getDbAccounts();
-  if (accounts.length === 0) return res.json([]);
+  try {
+    // get accounts
+    const accounts = await getDbAccounts();
+    if (accounts.length === 0) return res.json([]);
 
-  // retrieve all uniq accounts labels name
-  const labels = await getLabels(accounts);
+    // retrieve all uniq accounts labels name
+    const labels = await getLabels(accounts);
 
-  // remove old labels from db
-  await removeOldLabels(labels);
+    // remove old labels from db
+    await removeOldLabels(labels);
 
-  // store new labels in db
-  await storeNewLabels(labels);
+    // store new labels in db
+    await storeNewLabels(labels);
 
-  // fetch updated labels list
-  const labelsArr = await Label.find();
+    // fetch updated labels list
+    const labelsArr = await Label.find();
 
-  // return
-  res.json(labelsArr);
+    // return
+    res.json(labelsArr);
+  } catch (err) {
+    res.status(400).json(err);
+  }
 });
 
 // @route   POST settings/labels
 // @desc    Add label to black list
 // @access  Private
 router.post("/labels", isLogged, async (req, res) => {
-  const { id: _id, value } = req.body;
-  await Label.findOneAndUpdate({ _id }, { $set: { type: value } });
-  res.json();
+  try {
+    const { id: _id, value } = req.body;
+    await Label.findOneAndUpdate({ _id }, { $set: { type: value } });
+    res.json();
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
+
+// @route   GET settings/get-db-threads/:accountId
+// @desc    Get all threads of the account
+// @access  Private
+router.get("/get-db-threads/:accountId", isLogged, async (req, res) => {
+  try {
+    const { accountId } = req.params;
+    // get the account
+    const theAccount = await Accounts.findOne({ _id: accountId });
+    const { email } = theAccount;
+
+    // get threads
+    const threads = await Thread.find({ email });
+    const threadsId = threads.map(item => item.threadId);
+    res.json(threadsId);
+  } catch (err) {
+    res.status(400).json(err);
+  }
 });
 
 module.exports = router;

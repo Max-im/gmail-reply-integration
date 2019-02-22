@@ -10,6 +10,7 @@ export const SAVE_AUTH_CRED = "SAVE_AUTH_CRED";
 // Settings
 export const GET_ACCOUNTS = "GET_ACCOUNTS";
 export const GET_LABELS = "GET_LABELS";
+export const UPLOAD_PROGRESS = "UPLOAD_PROGRESS";
 
 // Integration
 export const GET_FILES = "GET_FILES";

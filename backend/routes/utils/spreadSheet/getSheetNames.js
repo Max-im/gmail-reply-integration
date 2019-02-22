@@ -7,7 +7,7 @@ const getFileInitData = (token, spreadsheetId) => {
 
   return new Promise((resolve, reject) => {
     sheets.spreadsheets.get({ spreadsheetId }, (err, res) => {
-      if (err) return reject("File not found, check the permissions");
+      if (err) return reject(err);
       const { sheets } = res.data;
       const result = sheets
         .map(item => item.properties)

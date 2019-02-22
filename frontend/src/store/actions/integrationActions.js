@@ -2,7 +2,6 @@ import axios from "axios";
 
 import {
   GET_FILES,
-  ERROR_EMIT,
   START_PROCESS,
   END_PROCESS,
   GET_SHEETS,
@@ -13,7 +12,7 @@ import {
 } from "./constants";
 
 import { formateIntegrationData } from "./utils/integration";
-import { addInfo } from "./utils/general";
+import { addInfo, addError } from "./utils/general";
 
 // get names of the files
 export const uploadFileNames = () => async dispatch => {
@@ -22,7 +21,7 @@ export const uploadFileNames = () => async dispatch => {
     const { data: files } = await axios.get("/integration/files");
     dispatch({ type: GET_FILES, payload: files });
   } catch (err) {
-    dispatch({ type: ERROR_EMIT, payload: err });
+    addError(err, dispatch);
   }
   dispatch({ type: END_PROCESS });
 };
@@ -36,7 +35,7 @@ export const onGetSheets = file => async dispatch => {
     const { data: sheets } = await axios.get(`/integration/file/${file.id}`);
     dispatch({ type: GET_SHEETS, payload: sheets });
   } catch (err) {
-    dispatch({ type: ERROR_EMIT, payload: err });
+    addError(err, dispatch);
   }
   dispatch({ type: END_PROCESS });
 };
@@ -52,10 +51,7 @@ export const onLaunch = sheetName => async (dispatch, getState) => {
   // check if all the accounts are uploaded
   if (accounts.some(item => !item.isUploaded)) {
     dispatch({ type: END_PROCESS });
-    return dispatch({
-      type: ERROR_EMIT,
-      payload: "You must upload Accounts first"
-    });
+    addError("You must upload Accounts first", dispatch);
   }
 
   dispatch({ type: SELECT_SHEET, payload: sheetName });
@@ -92,8 +88,7 @@ export const onLaunch = sheetName => async (dispatch, getState) => {
     // show success
     dispatch({ type: SUCCESS_EMIT, payload: "Integration complete" });
   } catch (err) {
-    console.error(err);
-    dispatch({ type: ERROR_EMIT, payload: err.response.data });
+    addError(err, dispatch);
   }
   dispatch({ type: END_PROCESS });
 };

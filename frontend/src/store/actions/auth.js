@@ -4,12 +4,11 @@ import jwt_decode from "jwt-decode";
 import {
   LOGIN,
   LOGOUT,
-  ERROR_EMIT,
   SAVE_AUTH_CRED,
   START_PROCESS,
   END_PROCESS
 } from "./constants";
-import { setAuthToken } from "./utils/general";
+import { setAuthToken, addError } from "./utils/general";
 import { getTokenFromCode } from "./utils/auth";
 
 // login
@@ -40,7 +39,7 @@ export const onLogin = response => async (dispatch, getStore) => {
       })
       .catch();
   } catch (err) {
-    dispatch({ type: ERROR_EMIT, payload: err });
+    addError(err, dispatch);
   }
 };
 
@@ -66,8 +65,8 @@ export const getLoginCred = () => dispatch => {
       });
       dispatch({ type: END_PROCESS });
     })
-    .catch(() => {
-      dispatch({ type: ERROR_EMIT, payload: "Cant receive auth credentials" });
+    .catch(err => {
+      addError(err, dispatch);
       dispatch({ type: END_PROCESS });
     });
 };
