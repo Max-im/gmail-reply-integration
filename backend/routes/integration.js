@@ -11,7 +11,7 @@ const Accounts = require("../model/Accounts");
 
 const getFiles = require("./utils/spreadSheet/getFiles");
 const getSheetNames = require("./utils/spreadSheet/getSheetNames");
-const getDbAccounts = require("./utils/db/getDbAccounts");
+const getAccountById = require("./utils/db/getAccountById");
 const getSheetData = require("./utils/spreadSheet/getSheetData");
 const updateUserThreads = require("./utils/common/updateUserThreads");
 const outputSheetData = require("./utils/spreadSheet/outputSheetData");
@@ -67,42 +67,47 @@ router.get("/sheet/:fileId/:sheetName", isLogged, async (req, res) => {
   }
 });
 
-// @route   GET integration/update
+// @route   POST integration/update/
 // @desc    Update account data
 // @access  Private
-router.get("/update", isLogged, async (req, res) => {
+router.post("/update/", isLogged, async (req, res) => {
   try {
     // get accounts
-    const accounts = await getDbAccounts();
+    const { id, options, labels } = req.body;
+    const account = await getAccountById(id);
 
-    asyncLoop(
-      accounts,
-      async (account, nextAccount) => {
-        // get updated threads
-        const { result, historyId } = await getAccountHistory(account);
-
-        // update account historyId
-        const { _id } = account;
-        await Accounts.findOneAndUpdate(
-          { _id },
-          { $set: { historyId, date: new Date() } }
-        );
-
-        if (result.length === 0) return nextAccount();
-
-        // all account labels
-        const userLabels = await getAccountLabels(account);
-
-        // update user threads
-        await updateUserThreads(result, userLabels, account);
-
-        nextAccount();
-      },
-      () => res.json()
+    // receive new changed threads
+    options.startHistoryId = account.historyId;
+    const { history, nextPageToken, historyId } = await getAccountHistory(
+      account,
+      options
     );
+
+    if (!nextPageToken) return res.json({ nextPageToken, historyId });
+
+    // update user threads
+    const idArr = history
+      .map(item => item.messages[0].threadId)
+      .filter((v, i, a) => a.indexOf(v) === i);
+
+    await updateUserThreads(idArr, labels, account);
+
+    res.json({ nextPageToken, historyId });
   } catch (err) {
     res.status(400).json(err);
   }
+});
+
+// @route   POST integration/compare
+// @desc    get threads matched by email
+// @access  Private
+router.post("/update-history", isLogged, async (req, res) => {
+  const { id: _id, historyId } = req.body;
+  await Accounts.findOneAndUpdate(
+    { _id },
+    { $set: { historyId, date: new Date() } }
+  );
+  res.json();
 });
 
 // @route   GET integration/compare

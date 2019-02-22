@@ -11,6 +11,7 @@ module.exports = (result, userLabels, account) => {
           // retrieve thread data
           const options = { id, userLabels, email: account.email };
           const threadData = await getThreadDataById(options);
+          if (!threadData) return nextId();
 
           // check if the thread in db
           const theThread = await Thread.findOne({ threadId: id });
@@ -26,7 +27,9 @@ module.exports = (result, userLabels, account) => {
 
           nextId();
         },
-        () => resolve()
+        () => {
+          resolve();
+        }
       );
     } catch (err) {
       reject(err);

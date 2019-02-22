@@ -1,6 +1,7 @@
 const { google } = require("googleapis");
 const auth = require("../auth");
 const retrievePeopleFromThread = require("../common/retrievePeopleFromThread");
+const Thread = require("../../../model/Threads");
 
 module.exports = ({ id, userLabels, email }) => {
   const targetLabelsId = userLabels
@@ -13,16 +14,24 @@ module.exports = ({ id, userLabels, email }) => {
   return new Promise((resolve, reject) => {
     const options = { id, userId: "me" };
     gmail.users.threads.get(options, (err, res) => {
-      if (err) return reject(err);
-
-      if (res.data.messages) {
+      if (err) {
+        if (
+          err.errors &&
+          err.errors[0] &&
+          err.errors[0].message &&
+          err.errors[0].message === "Not Found"
+        ) {
+          return Thread.findOneAndRemove({ threadId: id }).then(res =>
+            resolve()
+          );
+        }
+      }
+      if (res && res.data.messages) {
         // retrieve people
         try {
           result.people = retrievePeopleFromThread(res.data.messages);
         } catch (err) {
-          // save error
-          console.error(err);
-          console.error("Error retrieve people. " + id);
+          reject(err);
         }
 
         // retrieve labels

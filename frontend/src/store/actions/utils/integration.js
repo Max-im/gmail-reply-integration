@@ -1,3 +1,7 @@
+import axios from "axios";
+import asyncLoop from "node-async-loop";
+import { getAccountLabels } from "./settings";
+
 // format data for output
 export const formateIntegrationData = result => {
   const formated = [];
@@ -47,4 +51,53 @@ export const formateIntegrationData = result => {
   });
 
   return resultArr;
+};
+
+// update accounts
+export const updateAccounts = accounts => {
+  const arr = [];
+  for (var i = 0; i < 10; i++) {
+    arr.push(i);
+  }
+
+  return new Promise((resolve, reject) => {
+    asyncLoop(
+      accounts,
+      async (account, nextAccount) => {
+        const options = { userId: "me", maxResults: 20 };
+        const labels = await getAccountLabels(account._id);
+        let histId = false;
+        // console.log(labels);
+        asyncLoop(arr, (page, nextPage) => {
+          // console.log(page);
+          axios
+            .post("/integration/update/", {
+              id: account._id,
+              options,
+              labels
+            })
+            .then(res => {
+              console.log(res.data);
+              const { nextPageToken, historyId } = res.data;
+              if (!histId) histId = historyId;
+              if (nextPageToken) {
+                options.pageToken = nextPageToken;
+                nextPage();
+              } else {
+                // update historyId
+                axios
+                  .post("/integration/update-history", {
+                    historyId: histId,
+                    id: account._id
+                  })
+                  .then(() => nextAccount())
+                  .catch();
+              }
+            })
+            .catch(err => reject(err));
+        });
+      },
+      () => resolve()
+    );
+  });
 };

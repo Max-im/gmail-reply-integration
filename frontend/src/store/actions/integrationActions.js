@@ -11,7 +11,7 @@ import {
   SUCCESS_EMIT
 } from "./constants";
 
-import { formateIntegrationData } from "./utils/integration";
+import { formateIntegrationData, updateAccounts } from "./utils/integration";
 import { addInfo, addError } from "./utils/general";
 
 // get names of the files
@@ -51,7 +51,6 @@ export const onLaunch = sheetName => async (dispatch, getState) => {
     const { accounts } = state.settings;
 
     // check if all the accounts are uploaded
-    console.log();
     if (accounts.some(item => !item.isUploaded)) {
       return addError("You must upload Accounts first", dispatch);
     }
@@ -62,11 +61,13 @@ export const onLaunch = sheetName => async (dispatch, getState) => {
     const { data: emailArr } = await axios.get(
       `/integration/sheet/${theFile.id}/${sheetName}`
     );
-
     addInfo("Got sheet Data", dispatch);
 
     // update accounts data by historyId
-    await axios.get("/integration/update", { timeout: 120000 });
+    await updateAccounts(accounts);
+
+    return;
+
     addInfo("Accounts data updated", dispatch);
 
     // compare emails
