@@ -56,7 +56,7 @@ export const formateIntegrationData = result => {
 // update accounts
 export const updateAccounts = accounts => {
   const arr = [];
-  for (var i = 0; i < 10; i++) {
+  for (var i = 0; i < 10000; i++) {
     arr.push(i);
   }
 
