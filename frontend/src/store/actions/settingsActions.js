@@ -47,7 +47,6 @@ export const uploadAccountData = id => async dispatch => {
 
     // get all threads ids
     const threadsIdArr = await getAccountThreads(id, labels);
-    console.log("all threads", threadsIdArr);
 
     // filter new threads
     const { newThreads, inDb } = await filterNewThreads(threadsIdArr, id);

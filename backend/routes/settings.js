@@ -120,18 +120,13 @@ router.get(
       const theThreadInDb = await Thread.findOne({ threadId });
       if (theThreadInDb) return res.json(theThreadInDb);
 
-      const theAccount = await Accounts.findOne({ _id: accountId });
-
-      const decoded = {
-        ...theAccount._doc,
-        token: jwt.verify(theAccount.token, secretOrKey)
-      };
+      const theAccount = await getAccountById(accountId);
 
       // all account labels
-      const userLabels = await getAccountLabels(decoded);
+      const userLabels = await getAccountLabels(theAccount);
 
       // retrieve thread data
-      const options = { id: threadId, userLabels, email: decoded.email };
+      const options = { id: threadId, userLabels, email: theAccount.email };
       const threadData = await getThreadDataById(options);
 
       // save thread in db

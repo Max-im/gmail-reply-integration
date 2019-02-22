@@ -46,6 +46,7 @@ export const getAccountThreads = (id, labels) => {
       () => {
         const uniq = result
           .map(item => item.id)
+          .filter(item => item)
           .filter((v, i, a) => a.indexOf(v) === i);
         resolve(uniq);
       }
@@ -63,12 +64,12 @@ export const retrieveThreadsData = ({ newThreads, id, inDb, dispatch }) => {
     let counter = 0;
     asyncLoop(
       newThreads,
-      (thread, nextThread) => {
+      (threadId, nextThread) => {
         counter++;
         showInfoLoop(counter, newThreads, inDb, dispatch);
-
+        console.log(`/settings/get-thread-data/${threadId}/${id}`);
         axios
-          .get(`/settings/get-thread-data/${thread.id}/${id}`)
+          .get(`/settings/get-thread-data/${threadId}/${id}`)
           .then(res => {
             threadData.push(res.data);
             nextThread();
@@ -96,7 +97,7 @@ export const filterNewThreads = (threads, id) => {
     axios
       .get(`/settings/get-db-threads/${id}`)
       .then(res => {
-        const newThreads = threads.filter(item => !res.data.includes(item.id));
+        const newThreads = threads.filter(item => !res.data.includes(item));
         resolve({ newThreads, inDb: res.data });
       })
       .catch(err => reject(err));

@@ -26,6 +26,7 @@ export const addInfo = (payload, dispatch) => {
 
 // error show
 export const addError = (err, dispatch) => {
+  console.error(err);
   if (
     err &&
     err.response &&
@@ -49,8 +50,6 @@ export const addError = (err, dispatch) => {
     });
   } else if (err && typeof err === "string") {
     dispatch({ type: ERROR_EMIT, payload: { value: err, id: keygen._() } });
-  } else {
-    console.error(err);
   }
 };
 
