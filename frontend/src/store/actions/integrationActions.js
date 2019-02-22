@@ -66,8 +66,6 @@ export const onLaunch = sheetName => async (dispatch, getState) => {
     // update accounts data by historyId
     await updateAccounts(accounts);
 
-    return;
-
     addInfo("Accounts data updated", dispatch);
 
     // compare emails
