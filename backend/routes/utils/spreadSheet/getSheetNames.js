@@ -7,7 +7,10 @@ const getFileInitData = (token, spreadsheetId) => {
 
   return new Promise((resolve, reject) => {
     sheets.spreadsheets.get({ spreadsheetId }, (err, res) => {
-      if (err) return reject(err);
+      if (err) {
+        console.error("Error getting sheet names", err);
+        return reject("Error getting sheet names");
+      }
       const { sheets } = res.data;
       const result = sheets
         .map(item => item.properties)

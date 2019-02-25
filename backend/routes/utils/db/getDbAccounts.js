@@ -13,7 +13,8 @@ module.exports = () => {
 
       resolve(decoded);
     } catch (err) {
-      reject(err);
+      console.error("Error getting Accounts from DB", err);
+      reject("Error getting Accounts from DB");
     }
   });
 };

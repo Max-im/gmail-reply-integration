@@ -20,7 +20,8 @@ module.exports = labels => {
         () => resolve()
       );
     } catch (err) {
-      reject(err);
+      console.error("Error storing new label", err);
+      reject("Error storing new label");
     }
   });
 };

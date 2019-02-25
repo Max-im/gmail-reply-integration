@@ -13,7 +13,8 @@ module.exports = _id => {
       };
       resolve(decoded);
     } catch (err) {
-      reject(err);
+      console.error("Error getting account by Id", err);
+      reject("Error getting account by Id");
     }
   });
 };

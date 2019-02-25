@@ -7,7 +7,10 @@ module.exports = (token, spreadsheetId, range) => {
 
   return new Promise((resolve, reject) => {
     sheets.spreadsheets.values.get({ spreadsheetId, range }, (err, res) => {
-      if (err) return reject(err);
+      if (err) {
+        console.error("Error getting Sheet data", err);
+        return reject("Error getting Sheet data");
+      }
 
       // check data not empty
       const { values } = res.data;

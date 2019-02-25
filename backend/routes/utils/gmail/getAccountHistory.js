@@ -7,7 +7,10 @@ module.exports = (account, options) => {
 
   return new Promise((resolve, reject) => {
     gmail.users.history.list(options, (err, res) => {
-      if (err) return reject(err);
+      if (err) {
+        console.error("Error getting account history", err);
+        return reject("Error getting account history");
+      }
       resolve(res.data);
     });
   });

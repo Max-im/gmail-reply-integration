@@ -9,7 +9,10 @@ module.exports = (token, spreadsheetId, range, data) => {
   return new Promise((resolve, reject) => {
     // get last full column
     sheets.spreadsheets.values.get({ spreadsheetId, range }, (err, res) => {
-      if (err) return reject(err);
+      if (err) {
+        console.error("Error retrieving last column", err);
+        return reject("Error retrieving last column");
+      }
       const { values } = res.data;
       if (!values) return reject("cant reach the file");
       let maxLen = 0;
@@ -29,8 +32,10 @@ module.exports = (token, spreadsheetId, range, data) => {
           }
         },
         (err, res) => {
-          if (err) return reject(err);
-
+          if (err) {
+            console.error("Error outputing data", err);
+            return reject("Error outputing data");
+          }
           resolve();
         }
       );

@@ -19,7 +19,10 @@ module.exports = token => {
   return new Promise((resolve, reject) => {
     asyncLoop(arr, (page, nextPage) => {
       drive.files.list(options, (err, res) => {
-        if (err) return reject(err);
+        if (err) {
+          console.error("Error getting File names", err);
+          return reject("Error getting File names");
+        }
         const { files, nextPageToken } = res.data;
         if (files) result.push(...files);
 

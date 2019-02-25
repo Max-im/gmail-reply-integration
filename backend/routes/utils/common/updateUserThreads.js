@@ -32,7 +32,8 @@ module.exports = (result, userLabels, account) => {
         }
       );
     } catch (err) {
-      reject(err);
+      console.error("Error updating account", err);
+      reject("Error updating account");
     }
   });
 };

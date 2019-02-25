@@ -7,7 +7,10 @@ module.exports = account => {
 
   return new Promise(async (resolve, reject) => {
     gmail.users.labels.list({ userId: "me" }, (err, res) => {
-      if (err) return reject(err);
+      if (err) {
+        console.error("Error getting account labels", err);
+        return reject("Error getting account labels");
+      }
       resolve(res.data.labels);
     });
   });

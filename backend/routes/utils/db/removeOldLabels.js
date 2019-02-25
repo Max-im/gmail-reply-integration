@@ -18,7 +18,8 @@ module.exports = labels => {
         () => resolve()
       );
     } catch (err) {
-      reject(err);
+      console.error("Error getting labels", err);
+      reject("Error getting labels");
     }
   });
 };

@@ -31,7 +31,8 @@ module.exports = ({ id, userLabels, email }) => {
         try {
           result.people = retrievePeopleFromThread(res.data.messages);
         } catch (err) {
-          reject(err);
+          console.error("Error getting threads by ID", err);
+          reject("Error getting threads by ID");
         }
 
         // retrieve labels

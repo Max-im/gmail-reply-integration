@@ -15,8 +15,14 @@ module.exports = tokens => {
             const { historyId } = res.data;
             resolve({ gId, name, img, email, historyId });
           })
-          .catch(err => reject(err));
+          .catch(err => {
+            console.error("Error getting Profile", err);
+            reject("Error getting Profile");
+          });
       })
-      .catch(err => reject(err));
+      .catch(err => {
+        console.error("Error getting Profile data", err);
+        reject("Error getting Profile data");
+      });
   });
 };
