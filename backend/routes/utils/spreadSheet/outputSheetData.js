@@ -25,11 +25,12 @@ module.exports = (token, spreadsheetId, range, data) => {
           range: `${range}!${column}1:${column}${values.length}`,
           valueInputOption: "RAW",
           resource: {
-            values: data
+            values: data.map(item => [item])
           }
         },
         (err, res) => {
           if (err) return reject(err);
+
           resolve();
         }
       );

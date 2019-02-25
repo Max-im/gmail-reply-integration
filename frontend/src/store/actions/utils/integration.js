@@ -144,3 +144,26 @@ export const compareResults = emailArr => {
     resolve(threadArr);
   });
 };
+
+// output data
+// output each column separatly, for reduce server load time
+export const outputData = (formated, fileId, sheetName) => {
+  const arr = [];
+  for (var i = 0; i < formated[0].length; i++) {
+    arr.push(i);
+  }
+
+  return new Promise((resolve, reject) => {
+    asyncLoop(
+      arr,
+      (col, nextCol) => {
+        const data = formated.map(item => item[col]);
+        axios
+          .post("/integration/sheet", { fileId, sheetName, data })
+          .then(() => nextCol())
+          .catch(err => reject(err));
+      },
+      () => resolve()
+    );
+  });
+};

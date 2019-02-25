@@ -14,7 +14,8 @@ import {
 import {
   formateIntegrationData,
   updateAccounts,
-  compareResults
+  compareResults,
+  outputData
 } from "./utils/integration";
 import { getAccounts } from "./settingsActions";
 import { addInfo, addError } from "./utils/general";
@@ -82,11 +83,7 @@ export const onLaunch = sheetName => async (dispatch, getState) => {
     addInfo("Data formated", dispatch);
 
     // output
-    await axios.post("/integration/sheet", {
-      fileId: theFile.id,
-      sheetName,
-      data: formated
-    });
+    await outputData(formated, theFile.id, sheetName);
 
     // show success
     dispatch({ type: SUCCESS_EMIT, payload: "Integration complete" });

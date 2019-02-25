@@ -125,40 +125,9 @@ router.get("/labels", isLogged, async (req, res) => {
 // @access  Private
 router.post("/compare", isLogged, async (req, res) => {
   try {
-    const { emailArr } = req.body;
-
     // get all the threads
     const threads = await Thread.find();
-
     res.json(threads);
-
-    // const mapped = emailArr.map(email => {
-    //   const matchedThreads = threads
-    //     // filter all matched
-    //     .filter(item => {
-    //       if (item.people.some(person => person === email)) return true;
-    //       return false;
-    //     })
-    //     // map body and labels
-    //     .map(item => ({ body: item.body, labels: item.labels }));
-    //   return matchedThreads;
-    // });
-
-    // // filter by "check" labels
-    // const labels = await Label.find({ type: "check" });
-    // const labelNames = labels.map(item => item.name);
-    // const threadArr = mapped.map(item =>
-    //   item
-    //     .filter(thread =>
-    //       thread.labels.some(label => labelNames.includes(label))
-    //     )
-    //     .map(item => ({
-    //       body: item.body,
-    //       labels: item.labels.filter(label => labelNames.includes(label))
-    //     }))
-    // );
-
-    // res.json(threadArr);
   } catch (err) {
     res.status(400).json(err);
   }
