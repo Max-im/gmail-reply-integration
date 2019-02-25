@@ -490,3 +490,13 @@ li {
     }
   }
 }
+
+.documentation {
+  &__icon {
+    margin: 0 10px 0 0;
+    color: #1e88e5;
+  }
+  &__link {
+    color: #1e88e5;
+  }
+}

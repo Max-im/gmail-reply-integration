@@ -101,7 +101,7 @@ export class FilesList extends Component {
                     <a
                       href={`https://docs.google.com/spreadsheets/d/${item.id}`}
                       target="_blank"
-                      rel="nofollow"
+                      rel="noopener noreferrer"
                       className="fileList__id"
                     >
                       {item.id}

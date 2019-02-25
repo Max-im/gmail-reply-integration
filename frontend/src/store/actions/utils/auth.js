@@ -7,7 +7,6 @@ export const getTokenFromCode = ({
   client_secret
 }) => {
   return new Promise((resolve, reject) => {
-    console.log(redirect_url);
     axios
       .post(
         "https://www.googleapis.com/oauth2/v4/token",

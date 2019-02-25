@@ -80,7 +80,7 @@ export const onLaunch = sheetName => async (dispatch, getState) => {
 
     // formated
     const formated = formateIntegrationData(compared);
-    addInfo("Data formated", dispatch);
+    addInfo("Data formatted", dispatch);
 
     // output
     await outputData(formated, theFile.id, sheetName);
