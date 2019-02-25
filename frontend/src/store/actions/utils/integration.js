@@ -101,3 +101,46 @@ export const updateAccounts = accounts => {
     );
   });
 };
+
+// compare results
+export const compareResults = emailArr => {
+  return new Promise(async (resolve, reject) => {
+    const { data: labels } = await axios
+      .get("/integration/labels")
+      .catch(err => reject(err));
+
+    const labelNames = labels
+      .filter(item => item.type === "check")
+      .map(item => item.name);
+
+    const { data: threads } = await axios
+      .post("/integration/compare", { emailArr })
+      .catch(err => reject(err));
+
+    const mapped = emailArr.map(email => {
+      const matchedThreads = threads
+        // filter all matched
+        .filter(item => {
+          if (item.people.some(person => person === email)) return true;
+          return false;
+        })
+        // map body and labels
+        .map(item => ({ body: item.body, labels: item.labels }));
+      return matchedThreads;
+    });
+
+    // filter by "check" labels
+    const threadArr = mapped.map(item =>
+      item
+        .filter(thread =>
+          thread.labels.some(label => labelNames.includes(label))
+        )
+        .map(item => ({
+          body: item.body,
+          labels: item.labels.filter(label => labelNames.includes(label))
+        }))
+    );
+
+    resolve(threadArr);
+  });
+};

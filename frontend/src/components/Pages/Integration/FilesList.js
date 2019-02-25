@@ -6,7 +6,7 @@ import {
   uploadFileNames,
   onGetSheets
 } from "../../../store/actions/integrationActions";
-import { getAccoutns } from "../../../store/actions/settingsActions";
+import { getAccounts } from "../../../store/actions/settingsActions";
 
 export class FilesList extends Component {
   state = {
@@ -22,7 +22,7 @@ export class FilesList extends Component {
     // load accounts to check is the accounts uploaded
     const { accounts } = this.props.settings;
     if (accounts.length === 0) {
-      this.props.getAccoutns(false);
+      this.props.getAccounts(false);
     }
   }
 
@@ -33,7 +33,7 @@ export class FilesList extends Component {
   static propTypes = {
     uploadFileNames: PropTypes.func.isRequired,
     onGetSheets: PropTypes.func.isRequired,
-    getAccoutns: PropTypes.func.isRequired,
+    getAccounts: PropTypes.func.isRequired,
     integration: PropTypes.object.isRequired,
     settings: PropTypes.object.isRequired
   };
@@ -124,5 +124,5 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { uploadFileNames, onGetSheets, getAccoutns }
+  { uploadFileNames, onGetSheets, getAccounts }
 )(FilesList);

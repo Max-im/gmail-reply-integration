@@ -11,7 +11,12 @@ import {
   SUCCESS_EMIT
 } from "./constants";
 
-import { formateIntegrationData, updateAccounts } from "./utils/integration";
+import {
+  formateIntegrationData,
+  updateAccounts,
+  compareResults
+} from "./utils/integration";
+import { getAccounts } from "./settingsActions";
 import { addInfo, addError } from "./utils/general";
 
 // get names of the files
@@ -65,17 +70,15 @@ export const onLaunch = sheetName => async (dispatch, getState) => {
 
     // update accounts data by historyId
     await updateAccounts(accounts);
-
     addInfo("Accounts data updated", dispatch);
+    dispatch(getAccounts(false));
 
     // compare emails
-    const { data: result } = await axios.post("/integration/compare", {
-      emailArr
-    });
+    const compared = await compareResults(emailArr);
     addInfo("Threads are found", dispatch);
 
     // formated
-    const formated = formateIntegrationData(result);
+    const formated = formateIntegrationData(compared);
     addInfo("Data formated", dispatch);
 
     // output

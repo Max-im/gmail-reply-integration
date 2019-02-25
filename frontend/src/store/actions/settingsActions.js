@@ -18,7 +18,7 @@ import {
 import { addInfo, addError } from "./utils/general";
 
 // Get Accounts
-export const getAccoutns = bool => dispatch => {
+export const getAccounts = bool => dispatch => {
   axios
     .get("/settings/accounts")
     .then(res => {
@@ -57,10 +57,8 @@ export const uploadAccountData = id => async dispatch => {
 
     // store data in db
     await storeThreadsInDb(threadsData);
-
     addInfo(`The Data is Stored`, dispatch);
-
-    dispatch(getAccoutns());
+    dispatch(getAccounts());
   } catch (err) {
     addError(err, dispatch);
   }
@@ -74,7 +72,7 @@ export const removeAccount = id => dispatch => {
   axios
     .delete(`/settings/accounts/${id}`)
     .then(() => {
-      dispatch(getAccoutns());
+      dispatch(getAccounts());
       dispatch(getLabels());
     })
     .catch(err => {

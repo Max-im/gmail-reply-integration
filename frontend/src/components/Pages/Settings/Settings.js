@@ -6,20 +6,20 @@ import AccountsControl from "./AccountsControl";
 import Overlay from "../../Common/Overlay";
 import LabelsContorl from "./LabelsContorl";
 
-import { getAccoutns, getLabels } from "../../../store/actions/settingsActions";
+import { getAccounts, getLabels } from "../../../store/actions/settingsActions";
 
 class Settings extends Component {
   componentDidMount() {
     const { accounts } = this.props.settings;
     if (accounts.length === 0) {
-      this.props.getAccoutns(true);
+      this.props.getAccounts(true);
     }
     this.props.getLabels();
   }
 
   static propTypes = {
     settings: PropTypes.object.isRequired,
-    getAccoutns: PropTypes.func.isRequired,
+    getAccounts: PropTypes.func.isRequired,
     getLabels: PropTypes.func.isRequired
   };
 
@@ -48,5 +48,5 @@ const mapStatesToProps = state => ({
 
 export default connect(
   mapStatesToProps,
-  { getAccoutns, getLabels }
+  { getAccounts, getLabels }
 )(Settings);

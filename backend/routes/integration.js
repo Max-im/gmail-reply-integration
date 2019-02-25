@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const isLogged = require("../middlevares/isLogged");
-const asyncLoop = require("node-async-loop");
 const jwt = require("jsonwebtoken");
 const { secretOrKey } = require("../config");
 
@@ -16,7 +15,6 @@ const getSheetData = require("./utils/spreadSheet/getSheetData");
 const updateUserThreads = require("./utils/common/updateUserThreads");
 const outputSheetData = require("./utils/spreadSheet/outputSheetData");
 const getAccountHistory = require("./utils/gmail/getAccountHistory");
-const getAccountLabels = require("./utils/gmail/getAccountLabels");
 
 // @route   GET integration/test
 // @desc    Test
@@ -70,7 +68,7 @@ router.get("/sheet/:fileId/:sheetName", isLogged, async (req, res) => {
 // @route   POST integration/update/
 // @desc    Update account data
 // @access  Private
-router.post("/update/", isLogged, async (req, res) => {
+router.post("/update", isLogged, async (req, res) => {
   try {
     // get accounts
     const { id, options, labels } = req.body;
@@ -98,8 +96,8 @@ router.post("/update/", isLogged, async (req, res) => {
   }
 });
 
-// @route   POST integration/compare
-// @desc    get threads matched by email
+// @route   POST integration/update-history
+// @desc    account history id update
 // @access  Private
 router.post("/update-history", isLogged, async (req, res) => {
   const { id: _id, historyId } = req.body;
@@ -108,6 +106,18 @@ router.post("/update-history", isLogged, async (req, res) => {
     { $set: { historyId, date: new Date() } }
   );
   res.json();
+});
+
+// @route   GET integration/labels
+// @desc    return the all labels
+// @access  Private
+router.get("/labels", isLogged, async (req, res) => {
+  try {
+    const labels = await Label.find();
+    res.json(labels);
+  } catch (err) {
+    res.status(400).json(err);
+  }
 });
 
 // @route   GET integration/compare
@@ -119,35 +129,36 @@ router.post("/compare", isLogged, async (req, res) => {
 
     // get all the threads
     const threads = await Thread.find();
-    if (threads.length === 0) return res.json([]);
 
-    const mapped = emailArr.map(email => {
-      const matchedThreads = threads
-        // filter all matched
-        .filter(item => {
-          if (item.people.some(person => person === email)) return true;
-          return false;
-        })
-        // map body and labels
-        .map(item => ({ body: item.body, labels: item.labels }));
-      return matchedThreads;
-    });
+    res.json(threads);
 
-    // filter by "check" labels
-    const labels = await Label.find({ type: "check" });
-    const labelNames = labels.map(item => item.name);
-    const threadArr = mapped.map(item =>
-      item
-        .filter(thread =>
-          thread.labels.some(label => labelNames.includes(label))
-        )
-        .map(item => ({
-          body: item.body,
-          labels: item.labels.filter(label => labelNames.includes(label))
-        }))
-    );
+    // const mapped = emailArr.map(email => {
+    //   const matchedThreads = threads
+    //     // filter all matched
+    //     .filter(item => {
+    //       if (item.people.some(person => person === email)) return true;
+    //       return false;
+    //     })
+    //     // map body and labels
+    //     .map(item => ({ body: item.body, labels: item.labels }));
+    //   return matchedThreads;
+    // });
 
-    res.json(threadArr);
+    // // filter by "check" labels
+    // const labels = await Label.find({ type: "check" });
+    // const labelNames = labels.map(item => item.name);
+    // const threadArr = mapped.map(item =>
+    //   item
+    //     .filter(thread =>
+    //       thread.labels.some(label => labelNames.includes(label))
+    //     )
+    //     .map(item => ({
+    //       body: item.body,
+    //       labels: item.labels.filter(label => labelNames.includes(label))
+    //     }))
+    // );
+
+    // res.json(threadArr);
   } catch (err) {
     res.status(400).json(err);
   }
