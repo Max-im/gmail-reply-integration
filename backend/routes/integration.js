@@ -81,8 +81,6 @@ router.post("/update", isLogged, async (req, res) => {
       options
     );
 
-    if (!nextPageToken) return res.json({ nextPageToken, historyId });
-
     // update user threads
     const idArr = history
       .map(item => item.messages[0].threadId)

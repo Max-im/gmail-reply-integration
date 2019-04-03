@@ -13,7 +13,7 @@ export const getAccountLabels = id => {
 };
 
 // get all threads ids
-export const getAccountThreads = (id, labels) => {
+export const getAccountThreads = (id, labels, dispatch) => {
   const arr = [];
   for (var i = 0; i < 1000; i++) {
     arr.push(i);
@@ -23,6 +23,8 @@ export const getAccountThreads = (id, labels) => {
     asyncLoop(
       labels,
       (labelId, nextLabel) => {
+        addInfo("Start handle label - " + labelId, dispatch);
+
         const options = { userId: "me", maxResults: 500, labelIds: [labelId] };
 
         asyncLoop(arr, (page, nextPage) => {

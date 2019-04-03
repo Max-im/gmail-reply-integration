@@ -67,7 +67,7 @@ export const onLaunch = sheetName => async (dispatch, getState) => {
     const { data: emailArr } = await axios.get(
       `/integration/sheet/${theFile.id}/${sheetName}`
     );
-    addInfo("Got sheet Data", dispatch);
+    addInfo("Got sheet Data - " + emailArr.length + " items", dispatch);
 
     // update accounts data by historyId
     await updateAccounts(accounts);

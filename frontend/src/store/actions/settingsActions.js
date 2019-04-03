@@ -44,12 +44,15 @@ export const uploadAccountData = id => async dispatch => {
 
     // get account labels
     const labels = await getAccountLabels(id);
+    addInfo("Get labels " + labels.length, dispatch);
 
     // get all threads ids
-    const threadsIdArr = await getAccountThreads(id, labels);
+    const threadsIdArr = await getAccountThreads(id, labels, dispatch);
+    addInfo("Get threads " + threadsIdArr.length, dispatch);
 
     // filter new threads
     const { newThreads, inDb } = await filterNewThreads(threadsIdArr, id);
+    addInfo("New threads " + newThreads.length, dispatch);
 
     // retrieve data each of the thread
     const options = { newThreads, id, inDb, dispatch };

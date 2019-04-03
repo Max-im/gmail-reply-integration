@@ -8,7 +8,7 @@ module.exports = (account, options) => {
   return new Promise(async (resolve, reject) => {
     gmail.users.threads.list(options, (err, res) => {
       if (err) {
-        console.error("Error getting threads", err);
+        console.error(err, "Error getting threads");
         return reject("Error getting threads");
       }
       resolve(res.data);

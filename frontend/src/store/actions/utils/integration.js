@@ -67,9 +67,8 @@ export const updateAccounts = accounts => {
         const options = { userId: "me", maxResults: 20 };
         const labels = await getAccountLabels(account._id);
         let histId = false;
-        // console.log(labels);
+
         asyncLoop(arr, (page, nextPage) => {
-          // console.log(page);
           axios
             .post("/integration/update/", {
               id: account._id,
@@ -104,6 +103,7 @@ export const updateAccounts = accounts => {
 
 // compare results
 export const compareResults = emailArr => {
+  console.log(emailArr);
   return new Promise(async (resolve, reject) => {
     const { data: labels } = await axios
       .get("/integration/labels")
@@ -113,9 +113,13 @@ export const compareResults = emailArr => {
       .filter(item => item.type === "check")
       .map(item => item.name);
 
+    console.log("labelNames", labelNames);
+
     const { data: threads } = await axios
       .post("/integration/compare", { emailArr })
       .catch(err => reject(err));
+
+    console.log("threads", threads);
 
     const mapped = emailArr.map(email => {
       const matchedThreads = threads
@@ -129,6 +133,8 @@ export const compareResults = emailArr => {
       return matchedThreads;
     });
 
+    console.log("mapped", mapped);
+
     // filter by "check" labels
     const threadArr = mapped.map(item =>
       item
@@ -140,6 +146,8 @@ export const compareResults = emailArr => {
           labels: item.labels.filter(label => labelNames.includes(label))
         }))
     );
+
+    console.log("threadArr", threadArr);
 
     resolve(threadArr);
   });

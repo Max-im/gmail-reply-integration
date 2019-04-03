@@ -24,8 +24,11 @@ module.exports = ({ id, userLabels, email }) => {
           return Thread.findOneAndRemove({ threadId: id }).then(res =>
             resolve()
           );
+        } else {
+          console.log(err);
         }
       }
+
       if (res && res.data.messages) {
         // retrieve people
         try {
