@@ -6,4 +6,4 @@ package-lock.json
 /frontend/package-lock.json
 
 /backend/config/dev.js
-
+/backend/backups

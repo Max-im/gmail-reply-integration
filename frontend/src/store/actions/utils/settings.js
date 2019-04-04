@@ -18,6 +18,7 @@ export const getAccountThreads = (id, labels, dispatch) => {
   for (var i = 0; i < 1000; i++) {
     arr.push(i);
   }
+
   const result = [];
   return new Promise((resolve, reject) => {
     asyncLoop(
@@ -50,6 +51,7 @@ export const getAccountThreads = (id, labels, dispatch) => {
           .map(item => item.id)
           .filter(item => item)
           .filter((v, i, a) => a.indexOf(v) === i);
+
         resolve(uniq);
       }
     );
@@ -75,7 +77,10 @@ export const retrieveThreadsData = ({ newThreads, id, inDb, dispatch }) => {
             threadData.push(res.data);
             nextThread();
           })
-          .catch(err => reject(err));
+          .catch(err => {
+            console.error(err);
+            reject(err);
+          });
       },
       () => resolve(threadData)
     );

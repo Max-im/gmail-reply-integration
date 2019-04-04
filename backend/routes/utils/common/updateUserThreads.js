@@ -2,11 +2,11 @@ const asyncLoop = require("node-async-loop");
 const getThreadDataById = require("../gmail/getThreadDataById");
 const Thread = require("../../../model/Threads");
 
-module.exports = (result, userLabels, account) => {
+module.exports = (threadIdArr, userLabels, account) => {
   return new Promise((resolve, reject) => {
     try {
       asyncLoop(
-        result,
+        threadIdArr,
         async (id, nextId) => {
           // retrieve thread data
           const options = { id, userLabels, email: account.email };
@@ -17,13 +17,10 @@ module.exports = (result, userLabels, account) => {
           const theThread = await Thread.findOne({ threadId: id });
 
           // if there is new thread -
-          if (theThread) {
-            await Thread.findOneAndDelete({ _id: theThread._id });
-          }
-
+          if (theThread)
+            await Thread.findOneAndUpdate({ _id: theThread._id }, theThread);
           // save new thread
-          const newThread = new Thread(threadData);
-          await newThread.save();
+          else await Thread.create(threadData);
 
           nextId();
         },

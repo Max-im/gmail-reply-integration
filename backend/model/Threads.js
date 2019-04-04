@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const ThreadsSchema = new Schema({
-  threadId: { type: String, required: true },
+  threadId: { type: String, required: true, unique: true, dropDups: true },
   email: { type: String, required: true },
   labels: { type: Array, required: true },
   people: { type: Array, required: true },

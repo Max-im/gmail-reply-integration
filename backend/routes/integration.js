@@ -70,7 +70,7 @@ router.get("/sheet/:fileId/:sheetName", isLogged, async (req, res) => {
 // @access  Private
 router.post("/update", isLogged, async (req, res) => {
   try {
-    // get accounts
+    // get account
     const { id, options, labels } = req.body;
     const account = await getAccountById(id);
 
@@ -81,11 +81,12 @@ router.post("/update", isLogged, async (req, res) => {
       options
     );
 
-    // update user threads
+    // get updated threads ids
     const idArr = history
       .map(item => item.messages[0].threadId)
       .filter((v, i, a) => a.indexOf(v) === i);
 
+    // update user threads
     await updateUserThreads(idArr, labels, account);
 
     res.json({ nextPageToken, historyId });

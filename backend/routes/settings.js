@@ -117,8 +117,8 @@ router.get(
     try {
       const { threadId, accountId } = req.params;
 
-      const theThreadInDb = await Thread.findOne({ threadId });
-      if (theThreadInDb) return res.json(theThreadInDb);
+      // remove old if exist
+      await Thread.findOneAndDelete({ threadId });
 
       const theAccount = await getAccountById(accountId);
 
@@ -130,8 +130,7 @@ router.get(
       const threadData = await getThreadDataById(options);
 
       // save thread in db
-      const newThread = new Thread(threadData);
-      await newThread.save();
+      await Thread.create(threadData);
 
       res.json(threadData);
     } catch (err) {
@@ -166,6 +165,20 @@ router.delete("/accounts/:id", isLogged, async (req, res) => {
     // remove all account threads
     const { email } = removedAccount;
     await Thread.deleteMany({ email });
+
+    // labels managment
+    // ====================================================
+    const accounts = await getDbAccounts();
+
+    // retrieve all uniq accounts labels name
+    const labels = await getLabels(accounts);
+
+    // remove old labels from db
+    await removeOldLabels(labels);
+
+    // store new labels in db
+    await storeNewLabels(labels);
+
     await res.json();
   } catch (err) {
     res.status(400).json(err);

@@ -43,10 +43,11 @@ export const uploadAccountData = id => async dispatch => {
     dispatch({ type: UPLOAD_PROGRESS, payload: "0%" });
 
     // get account labels
+    // labels - an array contains all ids labels type === "user"
     const labels = await getAccountLabels(id);
     addInfo("Get labels " + labels.length, dispatch);
 
-    // get all threads ids
+    // get all threads ids, labeled by "user" labels
     const threadsIdArr = await getAccountThreads(id, labels, dispatch);
     addInfo("Get threads " + threadsIdArr.length, dispatch);
 
@@ -68,22 +69,6 @@ export const uploadAccountData = id => async dispatch => {
   dispatch({ type: END_PROCESS });
 };
 
-// remove Account
-export const removeAccount = id => dispatch => {
-  if (!window.confirm("Do you want to Remove the Account?")) return;
-  dispatch({ type: START_PROCESS });
-  axios
-    .delete(`/settings/accounts/${id}`)
-    .then(() => {
-      dispatch(getAccounts());
-      dispatch(getLabels());
-    })
-    .catch(err => {
-      dispatch({ type: END_PROCESS });
-      addError(err, dispatch);
-    });
-};
-
 // get all gmail labels
 export const getLabels = () => dispatch => {
   axios
@@ -93,6 +78,19 @@ export const getLabels = () => dispatch => {
       dispatch({ type: END_PROCESS });
     })
     .catch(err => addError(err, dispatch));
+};
+
+// remove Account
+export const removeAccount = id => dispatch => {
+  if (!window.confirm("Do you want to Remove the Account?")) return;
+  dispatch({ type: START_PROCESS });
+  axios
+    .delete(`/settings/accounts/${id}`)
+    .then(() => dispatch(getAccounts()))
+    .catch(err => {
+      dispatch({ type: END_PROCESS });
+      addError(err, dispatch);
+    });
 };
 
 // toggle label action

@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "frontend": "npm run start --prefix frontend",
+    "backup": "node backend/backups/createBackup.js",
     "frontend-install": "npm install --prefix frontend",
     "build": "npm run build --prefix frontend",
     "dev": "concurrently \"nodemon backend/server.js\" \"npm run frontend\"",
