@@ -1,9 +1,10 @@
-/node_modules
-package-lock.json
+node_modules
+server/config/dev.js
 
-/frontend/etc
-/frontend/node_modules/
-/frontend/package-lock.json
+client/etc
+client/node_modules/
+client/.env
+client/src/config
 
-/backend/config/dev.js
-/backend/backups
+
+
