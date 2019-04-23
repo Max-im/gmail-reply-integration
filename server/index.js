@@ -1,7 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
-const logger = require("morgan");
 const path = require("path");
 
 const app = express();
@@ -9,9 +8,10 @@ const isProduction = process.env.NODE_ENV === "production";
 
 app.use(bodyParser.urlencoded({ extended: false, limit: "250mb" }));
 app.use(bodyParser.json({ limit: "50mb", extended: true }));
-app.use(logger("dev"));
 
 if (!isProduction) {
+  const logger = require("morgan");
+  app.use(logger("dev"));
   const cors = require("cors");
   app.use(cors({ origin: "http://localhost:3000" }));
 }
