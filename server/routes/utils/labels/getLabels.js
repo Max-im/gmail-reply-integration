@@ -2,8 +2,6 @@ const { google } = require("googleapis");
 const asyncLoop = require("node-async-loop");
 const auth = require("../auth")("account");
 
-console.log(auth);
-
 module.exports = accounts => {
   const labelsArr = [];
 
