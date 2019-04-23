@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import "./style.scss";
 
 export default class Footer extends Component {
   render() {
@@ -8,11 +9,11 @@ export default class Footer extends Component {
           <div className="container">
             <p>Copyright &copy; {new Date().getFullYear()}</p>
             <div className="documentation">
-              <i className="fas fa-book documentation__icon" />
+              <i className="fas fa-book footer__docIcon" />
               <a
                 href="https://gmail-reply-connector.gitbook.io/documentation/"
                 rel="noopener noreferrer"
-                className=" documentation__link"
+                className=" footer__docLink"
                 target="_blank"
               >
                 Documentation

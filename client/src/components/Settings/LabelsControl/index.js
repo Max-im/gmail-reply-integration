@@ -1,88 +1,57 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-
-import { toggleLabelAction } from "../../../store/actions/settingsActions";
+import { getLabels, toggleCheck } from "../../../store/actions/labels";
+import "./style.scss";
 
 export class LabelsContorl extends Component {
-  render() {
-    const { labels, labelsReady } = this.props.settings;
-    let content;
-    if (labelsReady) {
-      content = (
-        <table className="labels__table" border="1">
-          <thead>
-            <tr>
-              <th className="centered">#</th>
-              <th className="centered">Label</th>
-              <th className="centered">Ingore</th>
-              <th className="centered">Check</th>
-            </tr>
-          </thead>
-          <tbody>
-            {labels
-              .sort((a, b) => (a.name > b.name ? 1 : -1))
-              .map((label, i) => (
-                <tr
-                  key={label._id}
-                  className={
-                    label.type === "check" ? "bg-warning text-gray" : ""
-                  }
-                >
-                  <td className="centered">{i + 1}</td>
-                  <td className="pl-2">{label.name}</td>
-                  <td
-                    className="labels__toggleAction centered"
-                    onClick={this.props.toggleLabelAction.bind(
-                      this,
-                      label._id,
-                      "ignore"
-                    )}
-                  >
-                    {label.type === "ignore" && (
-                      <i className="fas fa-check labels__icon" />
-                    )}
-                  </td>
-                  <td
-                    className="labels__toggleAction centered"
-                    onClick={this.props.toggleLabelAction.bind(
-                      this,
-                      label._id,
-                      "check"
-                    )}
-                  >
-                    {label.type === "check" && (
-                      <i className="fas fa-check labels__icon" />
-                    )}
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
-      );
-    }
+  componentDidMount() {
+    this.props.getLabels();
+  }
 
+  static propTypes = {
+    labels: PropTypes.object.isRequired,
+    getLabels: PropTypes.func.isRequired,
+    toggleCheck: PropTypes.func.isRequired
+  };
+
+  render() {
+    const { labels, inProcess } = this.props.labels;
     return (
-      <section className="container section">
-        <h3 className="bg-secondary text-center rounded text-white settings__title">
+      <section className="container section labels">
+        <h3 className="bg-secondary text-center rounded text-white page__subtitle">
           Labels Control
         </h3>
-        {content}
+        {!inProcess && (
+          <ul className="labels__list">
+            <li className="labels__item labels__headerItem">
+              <b className="labels__number labels__header">#</b>
+              <b className="labels__name labels__header">Name</b>
+            </li>
+            {labels.map((label, i) => (
+              <li
+                key={label._id}
+                onClick={this.props.toggleCheck.bind(this, label._id)}
+                className={
+                  (label.checked && "labels__item_active") + " labels__item"
+                }
+              >
+                <p className="labels__number">{i + 1}</p>
+                <p className="labels__name">{label.name}</p>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     );
   }
 }
 
-LabelsContorl.propTypes = {
-  settings: PropTypes.object.isRequired,
-  toggleLabelAction: PropTypes.func.isRequired
-};
-
 const mapStateToProps = state => ({
-  settings: state.settings
+  labels: state.labels
 });
 
 export default connect(
   mapStateToProps,
-  { toggleLabelAction }
+  { getLabels, toggleCheck }
 )(LabelsContorl);

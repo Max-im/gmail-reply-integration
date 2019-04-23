@@ -4,10 +4,9 @@ import jwt_decode from "jwt-decode";
 import { Provider } from "react-redux";
 
 import store from "./store/store";
-import "./scss/style.css";
 import App from "./components/App";
 
-import { setAuthToken } from "./store/actions/utils/general";
+import { setAuthToken } from "./store/actions/utils/auth";
 import { LOGIN } from "./store/actions/constants";
 
 // Check for token

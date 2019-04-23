@@ -1,0 +1,36 @@
+.sheetList {
+  text-align: left;
+  &__title {
+    color: #616161;
+    margin: 25px 0 0px 0;
+    display: block;
+  }
+  &__inner {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  &__wrap {
+    padding: 15px 5px;
+    box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+    &:hover {
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+      .sheetList__icon {
+        color: #009688;
+      }
+    }
+  }
+  &__item {
+    padding: 15px 5px;
+    box-sizing: border-box;
+    flex: 0 0 25%;
+    text-align: center;
+    color: #37474f;
+    overflow: hidden;
+  }
+  &__icon {
+    font-size: 30px;
+    color: #455a64;
+    margin: 0 0 15px 0;
+  }
+}

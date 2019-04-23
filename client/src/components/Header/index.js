@@ -2,6 +2,7 @@ import React from "react";
 import MainMenu from "./MainMenu";
 import AuthMenu from "./AuthMenu";
 import { Switch } from "react-router-dom";
+import "./style.scss";
 
 export default function Header() {
   return (

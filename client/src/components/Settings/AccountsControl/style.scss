@@ -1,0 +1,50 @@
+.accounts {
+  &__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 10px 0;
+  }
+  &__header {
+    font-weight: bold;
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0px;
+    width: 25%;
+    text-align: center;
+    margin: 0 0 5px 0;
+    &:first-child {
+      width: 30px;
+    }
+  }
+  &__row {
+    width: 25%;
+    text-align: center;
+    &:first-child {
+      width: 30px;
+    }
+  }
+  &__photo {
+    width: 40px;
+  }
+  &__name {
+    color: #333;
+    font-size: 18px;
+  }
+  &__email {
+    color: #757575;
+  }
+  &__remove {
+    color: red;
+    opacity: 0.6;
+    font-size: 20px;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    &:hover {
+      opacity: 1;
+    }
+  }
+  &__add {
+    text-align-last: right;
+    margin: 30px 105px 0 0;
+  }
+}

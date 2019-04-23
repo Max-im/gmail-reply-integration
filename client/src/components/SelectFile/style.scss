@@ -1,0 +1,65 @@
+.fileList {
+  width: 100%;
+  padding: 15px;
+  box-sizing: border-box;
+  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
+  max-height: 600px;
+  overflow-y: scroll;
+  &__item {
+    display: flex;
+    align-items: center;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 0px 10px;
+    height: 30px;
+    &:hover {
+      background: #e0e0e0;
+    }
+  }
+  &__text {
+    cursor: pointer;
+    flex: 1 1 100%;
+    text-align: left;
+    &:hover {
+      color: #2196f3;
+    }
+  }
+  &__id {
+    color: #bdbdbd;
+    font-size: 12px;
+    flex: 0 0 0px;
+    text-align: right;
+    white-space: nowrap;
+    display: block;
+  }
+  &__search {
+    display: flex;
+    align-items: center;
+    box-shadow: 0 0 2px gray;
+    box-sizing: border-box;
+    margin: 10px 0 20px 0;
+    padding: 2px 15px;
+    border-radius: 5px;
+    color: gray;
+    &_active {
+      color: #009688;
+      box-shadow: 0 0 5px #009688;
+    }
+  }
+  &__searchForm {
+    outline: none;
+    border: none;
+    &:focus {
+      outline: none;
+      border: none !important;
+      box-shadow: none;
+    }
+  }
+}
+
+.fa-file-excel {
+  color: green;
+  font-size: 20px;
+  margin: 0 15px 0 0;
+}

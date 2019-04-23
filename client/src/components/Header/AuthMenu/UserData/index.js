@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { onLogout } from "../../../../store/actions/auth";
@@ -13,13 +13,13 @@ export class index extends Component {
   render() {
     const { user } = this.props.auth;
     return (
-      <Fragment>
-        <img src={user.avatar} className="userData__avatar" alt={user.name} />
+      <div className="userData">
+        <img src={user.picture} className="userData__avatar" alt={user.name} />
         <i
           className="fas fa-sign-out-alt userData__logout"
           onClick={this.props.onLogout}
         />
-      </Fragment>
+      </div>
     );
   }
 }

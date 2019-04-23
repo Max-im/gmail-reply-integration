@@ -1,19 +1,12 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { getLoginCred } from "../../../store/actions/auth";
 import UserData from "./UserData";
 import Login from "./Login";
 
 export class AuthMenu extends Component {
-  componentDidMount() {
-    const { isAuth } = this.props.auth;
-    if (!isAuth) this.props.getLoginCred();
-  }
-
   static propTypes = {
-    auth: PropTypes.object.isRequired,
-    getLoginCred: PropTypes.func.isRequired
+    auth: PropTypes.object.isRequired
   };
 
   render() {
@@ -28,5 +21,5 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { getLoginCred }
+  {}
 )(AuthMenu);

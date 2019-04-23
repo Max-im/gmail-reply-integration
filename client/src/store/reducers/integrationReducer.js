@@ -1,10 +1,4 @@
-import {
-  GET_FILES,
-  GET_SHEETS,
-  SELECT_FILE,
-  SELECT_SHEET,
-  CHANGE_STAGE
-} from "../actions/constants";
+import { GET_FILES, GET_SHEETS, SELECT_SHEET } from "../actions/constants";
 
 const initialState = {
   stage: 1,
@@ -30,19 +24,6 @@ export default (state = initialState, action) => {
         ...state,
         sheets: action.payload,
         sheetsReady: true
-      };
-
-    case CHANGE_STAGE:
-      return {
-        ...state,
-        stage: action.payload,
-        sheetsReady: false
-      };
-
-    case SELECT_FILE:
-      return {
-        ...state,
-        theFile: action.payload
       };
 
     case SELECT_SHEET:

@@ -1,9 +1,9 @@
-import React, { Component } from "react";
-import { connect } from "react-redux";
+import React from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
-// common
-import Overlay from "../Common/Overlay";
+// css
+import "./reset.scss";
+import "./style.scss";
 
 // credentials
 import PrivatRoute from "../Common/PrivateRoute";
@@ -12,57 +12,54 @@ import PrivatRoute from "../Common/PrivateRoute";
 import Header from "../Header";
 import Footer from "../Footer";
 
-// messages
-import Info from "../Messages/Info";
-import Error from "../Messages/Error";
-import Success from "../Messages/Success";
-
 // pages
 import Home from "../Home";
 import Settings from "../Settings";
+import SelectFile from "../SelectFile";
+import SelectSheet from "../SelectSheet";
 import Integration from "../Integration";
 
-class App extends Component {
-  render() {
-    const { inProcess } = this.props.general;
+export default function index() {
+  return (
+    <Router>
+      <div className="app">
+        <Header />
 
-    return (
-      <Router>
-        <div className="app">
-          <Header />
+        <main className="main">
+          <div className="container">
+            <Route exact path="/" component={Home} />
 
-          <main className="main">
-            <div className="container">
-              <Route exact path="/" component={Home} />
+            <Switch>
+              <PrivatRoute path="/settings" component={Settings} />
+            </Switch>
 
-              <Switch>
-                <PrivatRoute exact path="/settings" component={Settings} />
-              </Switch>
+            <Switch>
+              <PrivatRoute
+                path="/integration/file/launch/:fileId/:sheetName"
+                component={Integration}
+              />
+            </Switch>
 
-              <Switch>
-                <PrivatRoute
-                  exact
-                  path="/integration"
-                  component={Integration}
-                />
-              </Switch>
-            </div>
-          </main>
-          <Footer />
+            <Switch>
+              <PrivatRoute
+                exact
+                path="/integration/file/:id"
+                component={SelectSheet}
+              />
+            </Switch>
 
-          {/* overlay */}
-          {inProcess && <Overlay />}
+            <Switch>
+              <PrivatRoute
+                exact
+                path="/integration/file"
+                component={SelectFile}
+              />
+            </Switch>
+          </div>
+        </main>
 
-          {/* messages */}
-          <Error />
-          <Info />
-          <Success />
-        </div>
-      </Router>
-    );
-  }
+        <Footer />
+      </div>
+    </Router>
+  );
 }
-
-const mapStateToProps = state => ({ general: state.general });
-
-export default connect(mapStateToProps)(App);

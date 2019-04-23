@@ -1,13 +1,9 @@
 import { combineReducers } from "redux";
 
-import authReducer from "./authReducer";
-import generalReducer from "./generalReducer";
-import integrationReducer from "./integrationReducer";
-import settingsReducer from "./settingsReducer";
+import auth from "./authReducer";
+import general from "./generalReducer";
+import labels from "./labelsReducer";
+import accounts from "./accountsReducer";
+import input from "./inputReducer";
 
-export default combineReducers({
-  auth: authReducer,
-  general: generalReducer,
-  integration: integrationReducer,
-  settings: settingsReducer
-});
+export default combineReducers({ auth, general, labels, accounts, input });

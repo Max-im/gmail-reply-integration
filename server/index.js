@@ -23,15 +23,13 @@ mongoose
   .then(() => console.info("db start"))
   .catch(err => console.error(err));
 
-// Routing export
-const auth = require("./routes/auth");
-const settings = require("./routes/settings");
-const integration = require("./routes/integration");
-
-// includes routes
-app.use("/auth", auth);
-app.use("/settings", settings);
-app.use("/integration", integration);
+// Routes
+app.use("/auth", require("./routes/auth"));
+app.use("/accounts", require("./routes/accounts"));
+app.use("/input", require("./routes/input"));
+app.use("/labels", require("./routes/labels"));
+app.use("/integration", require("./routes/integration"));
+app.use("/output", require("./routes/output"));
 
 // Frontend build include
 if (isProduction) {

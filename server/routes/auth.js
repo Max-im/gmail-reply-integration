@@ -1,22 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
-const getProfile = require("./utils/gmail/getProfile");
-
-const {
-  secretOrKey,
-  userClientId,
-  userScope,
-  userRedirectUris,
-  userClientSecret
-} = require("../config");
-
+const getProfile = require("./utils/auth/getProfile");
+const { secretOrKey } = require("../config");
 const User = require("../model/User");
-
-// @route   GET auth/test
-// @desc    Test
-// @access  Public
-router.get("/test", (req, res) => res.json({ auth: "success" }));
 
 // @route   POST auth/login
 // @desc    Login with google
@@ -24,46 +11,18 @@ router.get("/test", (req, res) => res.json({ auth: "success" }));
 router.post("/login", async (req, res) => {
   try {
     const { token } = req.body;
-    const { email, gId: uid, img: avatar, name } = await getProfile(token);
-    let theUser = await User.findOne({ uid });
+    const userData = await getProfile(token);
+    const dbUser = await User.findOne({ id: userData.id });
+
+    // return from db
+    if (dbUser) return res.json(jwt.sign(userData, secretOrKey));
 
     // register
-    if (!theUser) {
-      const newUser = new User({
-        email,
-        uid,
-        avatar,
-        name,
-        token: jwt.sign(token, secretOrKey)
-      });
-      await newUser.save();
-      theUser = newUser;
-    }
-
-    const payload = { ...theUser._doc };
-
-    jwt.sign(payload, secretOrKey, (err, token) => {
-      if (err) return res.status(400).json(err);
-      res.json({ token });
-    });
+    await User.create({ ...userData, token: jwt.sign(token, secretOrKey) });
+    return res.json(jwt.sign(userData, secretOrKey));
   } catch (err) {
-    res.status(400).json(err);
-  }
-});
-
-// @route   GET auth/cred
-// @desc    Get credentials
-// @access  Public
-router.get("/cred", (req, res) => {
-  try {
-    res.json({
-      client_id: userClientId,
-      scope: userScope,
-      client_secret: userClientSecret,
-      redirect_url: userRedirectUris
-    });
-  } catch (err) {
-    res.status(400).json(err);
+    console.error(err, "\n================\n Auth error \n================\n");
+    res.status(400).json("Auth error");
   }
 });
 

@@ -1,34 +1,32 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
-
-import FilesList from "./FilesList";
-import SheetsList from "./SheetsList";
+import { withRouter } from "react-router-dom";
+import { onLaunch } from "../../store/actions/integration";
+import "./style.scss";
 
 class Integration extends Component {
+  componentDidMount() {
+    const { sheetName, fileId } = this.props.match.params;
+    this.props.onLaunch(fileId, sheetName);
+  }
+
   static propTypes = {
-    integration: PropTypes.object.isRequired
+    onLaunch: PropTypes.func.isRequired
   };
 
   render() {
-    const { stage } = this.props.integration;
-
     return (
-      <div className="integration">
-        <h1 className="display-4 text-center mb-4">Integration</h1>
-
-        {stage === 1 && <FilesList />}
-        {stage === 2 && <SheetsList />}
+      <div className="page">
+        <h1 className="display-4 text-center page__title">Integration</h1>
       </div>
     );
   }
 }
 
-const mapStateToProps = state => ({
-  integration: state.integration
-});
+const mapStateToProps = state => ({});
 
 export default connect(
   mapStateToProps,
-  {}
-)(Integration);
+  { onLaunch }
+)(withRouter(Integration));

@@ -1,31 +1,30 @@
 import axios from "axios";
-import { redirect_uri, client_id, client_secret } from "../../../config";
 
-export const getTokenFromCode = code => {
+// retrieve token by code
+export const getTokenFromCode = authData => {
   return new Promise((resolve, reject) => {
-    const params = {
-      code,
-      client_id,
-      client_secret,
-      grant_type: "authorization_code",
-      redirect_uri
-    };
+    const headers = { "Content-Type": "application/x-www-form-urlencoded" };
+    const params = { ...authData, grant_type: "authorization_code" };
 
     axios
       .post(
         "https://www.googleapis.com/oauth2/v4/token",
         {},
-        {
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          params
-        }
+        { headers, params }
       )
-      .then(res => {
-        resolve(res.data);
-      })
+      .then(res => resolve(res.data))
       .catch(err => {
-        console.error(err.response.data);
         reject("Error retrieving tokin");
+        console.error(err.response.data);
       });
   });
+};
+
+// Set up Auth axios header
+export const setAuthToken = token => {
+  if (token) {
+    axios.defaults.headers.common["Authorization"] = token;
+  } else {
+    delete axios.defaults.headers.common["Authorization"];
+  }
 };

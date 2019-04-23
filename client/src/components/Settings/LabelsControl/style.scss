@@ -1,0 +1,54 @@
+.labels {
+  &__item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    &:hover {
+      background: #dadada;
+    }
+    &_active {
+      background: #ffc107;
+      overflow: hidden;
+      border-radius: 3px;
+      box-shadow: inset 0px 0px 5px #ffb300;
+      margin: 0 0 4px 0;
+      box-sizing: border-box;
+      &:hover {
+        background: #ffb300;
+      }
+    }
+  }
+  &__headerItem {
+    cursor: auto;
+    &:hover {
+      background: transparent;
+    }
+  }
+  &__number {
+    flex: 0 0 50px;
+    color: gray;
+  }
+  &__name {
+    flex: 1 1 100%;
+    text-align: left;
+    padding: 5px 0 5px 15px;
+    padding-left: 15px !important;
+    text-align: left !important;
+    box-sizing: border-box;
+  }
+  &__state {
+    text-align: center;
+    flex: 0 0 100px;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+  }
+  &__header {
+    text-align: center;
+    color: #333;
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0px;
+    text-align: center;
+    margin: 0 0 5px 0;
+  }
+}

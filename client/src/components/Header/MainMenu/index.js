@@ -1,8 +1,9 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { Link, NavLink } from "react-router-dom";
 import logo from "../../../img/logo.png";
+import "./style.scss";
 
 export class MainMenu extends Component {
   static propTypes = {
@@ -24,7 +25,7 @@ export class MainMenu extends Component {
         </li>
 
         {isAuth && (
-          <Fragment>
+          <>
             <li className="nav-item ">
               <NavLink
                 className="nav-link"
@@ -37,13 +38,13 @@ export class MainMenu extends Component {
             <li className="nav-item">
               <NavLink
                 className="nav-link"
-                to="/integration"
+                to="/integration/file"
                 activeClassName="nav-link_active"
               >
                 Integration
               </NavLink>
             </li>
-          </Fragment>
+          </>
         )}
       </ul>
     );
