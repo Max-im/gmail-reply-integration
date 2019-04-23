@@ -7,13 +7,13 @@ import store from "./store/store";
 import App from "./components/App";
 
 import { setAuthToken } from "./store/actions/utils/auth";
-import { LOGIN } from "./store/actions/constants";
+import { SET_USER } from "./store/actions/constants";
 
 // Check for token
 if (localStorage.outBandSales) {
   setAuthToken(localStorage.outBandSales);
   const decoded = jwt_decode(localStorage.outBandSales);
-  store.dispatch({ type: LOGIN, payload: decoded });
+  store.dispatch({ type: SET_USER, payload: decoded });
 }
 
 ReactDOM.render(

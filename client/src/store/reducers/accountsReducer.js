@@ -1,8 +1,13 @@
-import { GET_ACCOUNTS, ACCOUNTS_IN_PROCESS } from "../actions/constants";
+import {
+  GET_ACCOUNTS,
+  ACCOUNTS_IN_PROCESS,
+  ACCOUNTS_ERROR
+} from "../actions/constants";
 
 const initialState = {
   inProcess: true,
-  accounts: []
+  accounts: [],
+  error: null
 };
 
 export default (state = initialState, action) => {
@@ -20,6 +25,13 @@ export default (state = initialState, action) => {
       return {
         ...state,
         inProcess: true
+      };
+
+    // error
+    case ACCOUNTS_ERROR:
+      return {
+        ...state,
+        error: action.payload
       };
 
     default:

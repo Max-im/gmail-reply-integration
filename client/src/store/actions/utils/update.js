@@ -1,28 +1,44 @@
 import axios from "axios";
 import asyncLoop from "node-async-loop";
 import { getDbThreads } from "./integration";
+import { ADD_INFO } from "../constants";
 
-export const update = (threads, dbThreads) => {
+export const update = (threads, dbThreads, dispatch) => {
   return new Promise(async (resolve, reject) => {
-    const compareResult = compareThreadsWithDb(threads, dbThreads);
-    const { needToCreate, needToUpdate, needToRemove } = compareResult;
-    console.log(needToRemove.length, "need to remove");
-    console.log(needToCreate.length, "need to create");
-    console.log(needToUpdate.length, "need to update");
+    try {
+      const compareResult = compareThreadsWithDb(threads, dbThreads);
+      const { needToCreate, needToUpdate, needToRemove } = compareResult;
 
-    // remove old
-    if (needToRemove.length > 0) await removeOldDbThreads(needToRemove);
+      // remove old
+      if (needToRemove.length > 0) {
+        const payload = `Need to remove ${needToRemove.length} threads`;
+        dispatch({ type: ADD_INFO, payload });
+        await removeOldDbThreads(needToRemove);
+      }
 
-    // create new
-    if (needToCreate.length > 0) await createDbThreads(needToCreate);
+      // create new
+      if (needToCreate.length > 0) {
+        const payload = `Need to create ${needToCreate.length} threads`;
+        dispatch({ type: ADD_INFO, payload });
+        await createDbThreads(needToCreate);
+      }
 
-    // update db data
-    if (needToUpdate.length > 0) await updateDbThreads(needToUpdate);
+      // update db data
+      if (needToUpdate.length > 0) {
+        const payload = `Need to update ${needToUpdate.length} threads`;
+        dispatch({ type: ADD_INFO, payload });
+        await updateDbThreads(needToUpdate);
+      }
 
-    // get gb threads
-    const idUpdated = needToCreate.length === 0 && needToUpdate.length === 0;
-    const actualThreads = idUpdated ? await getDbThreads() : dbThreads;
-    resolve(actualThreads);
+      // get gb threads
+      const idUpdated = needToCreate.length === 0 && needToUpdate.length === 0;
+      const actualThreads = idUpdated ? await getDbThreads() : dbThreads;
+      dispatch({ type: ADD_INFO, payload: "All data is updated" });
+
+      resolve(actualThreads);
+    } catch (err) {
+      reject(err);
+    }
   });
 };
 
@@ -49,10 +65,7 @@ function removeOldDbThreads(needToRemove) {
     axios
       .post(`/integration/delete-thread`, { removeIdArr })
       .then(() => resolve())
-      .catch(err => {
-        console.log(err);
-        reject(err);
-      });
+      .catch(err => reject(err));
   });
 }
 
@@ -65,10 +78,7 @@ function createDbThreads(needToCreate) {
         axios
           .post("/integration/create-thread", { thread })
           .then(() => nextThread())
-          .catch(err => {
-            console.log(err);
-            reject(err);
-          });
+          .catch(err => reject(err));
       },
       () => resolve()
     );
@@ -84,10 +94,7 @@ function updateDbThreads(needToUpdate) {
         axios
           .post("/integration/update-thread", { thread })
           .then(() => nextThread())
-          .catch(err => {
-            console.log(err);
-            reject(err);
-          });
+          .catch(err => reject(err));
       },
       () => resolve()
     );

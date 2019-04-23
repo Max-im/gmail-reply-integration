@@ -5,12 +5,13 @@ import {
   client_secret_user,
   redirect_uri_user
 } from "../../config";
-import { LOGIN, LOGOUT } from "./constants";
+import { SET_USER, AUTH_ERROR } from "./constants";
 import { getTokenFromCode, setAuthToken } from "./utils/auth";
 
 // login
 export const onLogin = response => async dispatch => {
   try {
+    dispatch({ type: AUTH_ERROR, payload: null });
     const { code } = response;
     const authData = {
       code,
@@ -29,9 +30,12 @@ export const onLogin = response => async dispatch => {
       // Decode token to get User data
       const decoded = jwt_decode(token);
 
-      dispatch({ type: LOGIN, payload: decoded });
+      dispatch({ type: SET_USER, payload: decoded });
     });
   } catch (err) {
+    if (err && err.response && err.response.data) {
+      return dispatch({ type: AUTH_ERROR, payload: err.response.data });
+    }
     console.error(err);
   }
 };
@@ -40,10 +44,14 @@ export const onLogin = response => async dispatch => {
 export const onLogout = () => dispatch => {
   try {
     if (!window.confirm("Do you want to Logout?")) return;
+    dispatch({ type: AUTH_ERROR, payload: null });
     localStorage.removeItem("outBandSales");
     setAuthToken(false);
-    dispatch({ type: LOGOUT });
+    dispatch({ type: SET_USER, payload: {} });
   } catch (err) {
+    if (err && err.response && err.response.data) {
+      return dispatch({ type: AUTH_ERROR, payload: err.response.data });
+    }
     console.error(err);
   }
 };

@@ -1,8 +1,14 @@
-import { GET_FILES, GET_SHEETS, SHEET_ERROR } from "../actions/constants";
+import {
+  GET_FILES,
+  GET_SHEETS,
+  SHEET_ERROR,
+  FILES_ERROR
+} from "../actions/constants";
 
 const initialState = {
   files: [],
   filesReady: false,
+  filesError: null,
   sheets: [],
   sheetsReady: false,
   sheetError: null
@@ -28,6 +34,12 @@ export default (state = initialState, action) => {
       return {
         ...state,
         sheetError: action.payload
+      };
+
+    case FILES_ERROR:
+      return {
+        ...state,
+        filesError: action.payload
       };
 
     default:

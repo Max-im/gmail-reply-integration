@@ -58,6 +58,15 @@
   }
 }
 
+.selectFile {
+  position: relative;
+  &__error {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+  }
+}
+
 .fa-file-excel {
   color: green;
   font-size: 20px;

@@ -18,13 +18,13 @@ export class SheetsList extends Component {
   };
 
   render() {
-    const { sheets, sheetsReady } = this.props.input;
+    const { sheets, sheetsReady, sheetError } = this.props.input;
     const { id } = this.props.match.params;
 
     return (
       <div className="page">
         <h1 className="display-4 text-center page__title">Select Sheet</h1>
-        <section className="section container">
+        <section className="section container selectSheet">
           <h3 className="bg-secondary text-center rounded text-white page__subtitle">
             Sheets
           </h3>
@@ -62,6 +62,9 @@ export class SheetsList extends Component {
             </div>
           ) : (
             <Overlay />
+          )}
+          {sheetError && (
+            <p className="error selectSheet__error">{sheetError}</p>
           )}
         </section>
       </div>

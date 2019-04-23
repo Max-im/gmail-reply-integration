@@ -14,8 +14,8 @@ export const getTokenFromCode = authData => {
       )
       .then(res => resolve(res.data))
       .catch(err => {
+        console.error(err);
         reject("Error retrieving tokin");
-        console.error(err.response.data);
       });
   });
 };

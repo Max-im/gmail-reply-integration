@@ -21,10 +21,10 @@ export class AccountsControl extends Component {
   };
 
   render() {
-    const { accounts, inProcess } = this.props.accounts;
+    const { accounts, inProcess, error } = this.props.accounts;
 
     return (
-      <section className="container section">
+      <section className="container section accounts">
         <h3 className="bg-secondary text-center rounded text-white page__subtitle">
           Accounts Control
         </h3>
@@ -78,6 +78,7 @@ export class AccountsControl extends Component {
             </div>
           </>
         )}
+        {error && <p className="accounts__error error">{error}</p>}
       </section>
     );
   }

@@ -38,3 +38,15 @@
     letter-spacing: 1.5px;
   }
 }
+
+.error {
+  padding: 10px 15px;
+  display: inline-block;
+  white-space: nowrap;
+  color: #f44336;
+  box-sizing: border-box;
+  font-weight: bold;
+  background: #fff;
+  text-transform: capitalize;
+  box-shadow: 0 0 3px rgba(244, 67, 54, 0.5);
+}

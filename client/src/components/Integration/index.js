@@ -12,19 +12,58 @@ class Integration extends Component {
   }
 
   static propTypes = {
-    onLaunch: PropTypes.func.isRequired
+    onLaunch: PropTypes.func.isRequired,
+    integration: PropTypes.object.isRequired
   };
 
   render() {
+    const { actions } = this.props.integration;
     return (
-      <div className="page">
+      <div className="page integration">
         <h1 className="display-4 text-center page__title">Integration</h1>
+        <section className="section">
+          <h3 className="bg-secondary text-center rounded text-white page__subtitle">
+            Output data
+          </h3>
+          <ul className="actions">
+            {actions.map((action, i) => (
+              <li
+                key={action.text}
+                className={
+                  "actions__item " +
+                  (action.type === "error" && "actions__item_error ")
+                }
+              >
+                <div className="actions__inner">
+                  <p className="actions__number">{i + 1}</p>
+                  <p className="actions__text">{action.text}</p>
+                </div>
+                <p
+                  className={
+                    "actions__status" +
+                    (action.type === "error"
+                      ? " actions__status_error"
+                      : " actions__status_info")
+                  }
+                >
+                  {action.type === "error" ? (
+                    <i class="fas fa-times" />
+                  ) : (
+                    <i className="fas fa-check" />
+                  )}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
       </div>
     );
   }
 }
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({
+  integration: state.integration
+});
 
 export default connect(
   mapStateToProps,

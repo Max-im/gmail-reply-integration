@@ -16,7 +16,7 @@ export class LabelsContorl extends Component {
   };
 
   render() {
-    const { labels, inProcess } = this.props.labels;
+    const { labels, inProcess, error } = this.props.labels;
     return (
       <section className="container section labels">
         <h3 className="bg-secondary text-center rounded text-white page__subtitle">
@@ -42,6 +42,7 @@ export class LabelsContorl extends Component {
             ))}
           </ul>
         )}
+        {error && <p className="error labels__error">{error}</p>}
       </section>
     );
   }

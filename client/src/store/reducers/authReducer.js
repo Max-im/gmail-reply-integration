@@ -1,24 +1,24 @@
-import { LOGIN, LOGOUT } from "../actions/constants";
+import { SET_USER, AUTH_ERROR } from "../actions/constants";
 
 const initialState = {
   isAuth: false,
-  user: null
+  user: {},
+  error: null
 };
 
 export default (state = initialState, action) => {
   switch (action.type) {
-    case LOGIN:
+    case SET_USER:
       return {
         ...state,
-        isAuth: true,
+        isAuth: Object.keys(action.payload).length > 0,
         user: action.payload
       };
 
-    case LOGOUT:
+    case AUTH_ERROR:
       return {
         ...state,
-        isAuth: false,
-        user: null
+        error: action.payload
       };
 
     default:

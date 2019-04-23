@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import Overlay from "../General/Overlay";
 import "./style.scss";
-
 import { getFiles } from "../../store/actions/input";
 
 export class FilesList extends Component {
@@ -21,7 +20,7 @@ export class FilesList extends Component {
   };
 
   render() {
-    const { files, filesReady } = this.props.input;
+    const { files, filesReady, filesError } = this.props.input;
     const { search, onSearch } = this.state;
 
     let filtred;
@@ -49,10 +48,10 @@ export class FilesList extends Component {
     }
 
     return (
-      <div className="page">
+      <div className="page selectFile">
         <h1 className="display-4 text-center page__title">Select File</h1>
 
-        <section className="section container">
+        <section className="section container selectFile">
           <h3 className="bg-secondary text-center rounded text-white page__subtitle">
             {filesReady ? (
               <span>Found {filtred.length} files</span>
@@ -115,9 +114,11 @@ export class FilesList extends Component {
             </>
           )}
           <p>{textMessage}</p>
-
-          {!filesReady && <Overlay />}
+          {filesError && (
+            <p className="error selectFile__error">{filesError}</p>
+          )}
         </section>
+        {!filesReady && <Overlay />}
       </div>
     );
   }

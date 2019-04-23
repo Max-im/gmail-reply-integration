@@ -1,0 +1,8 @@
+.auth {
+  position: relative;
+  &__error {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 30px;
+  }
+}

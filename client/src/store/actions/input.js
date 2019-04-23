@@ -1,10 +1,18 @@
 import axios from "axios";
-import { GET_SHEETS, GET_FILES, SHEET_ERROR } from "./constants";
+import { GET_SHEETS, GET_FILES, SHEET_ERROR, FILES_ERROR } from "./constants";
 
 // get all user files
-export const getFiles = () => async dispatch => {
-  const { data: files } = await axios.get("/input/files");
-  dispatch({ type: GET_FILES, payload: files });
+export const getFiles = () => dispatch => {
+  dispatch({ type: FILES_ERROR, payload: null });
+  axios
+    .get("/input/files")
+    .then(res => dispatch({ type: GET_FILES, payload: res.data }))
+    .catch(err => {
+      if (err && err.response && err.response.data) {
+        return dispatch({ type: FILES_ERROR, payload: err.response.data });
+      }
+      console.error(err);
+    });
 };
 
 // get selected file sheets
@@ -14,7 +22,9 @@ export const getSheets = id => async dispatch => {
     var { data: sheets } = await axios.get(`/input/file/${id}`);
     dispatch({ type: GET_SHEETS, payload: sheets });
   } catch (err) {
-    const payload = "Error getting sheet names, check permissions";
-    dispatch({ type: SHEET_ERROR, payload });
+    if (err && err.response && err.response.data) {
+      return dispatch({ type: SHEET_ERROR, payload: err.response.data });
+    }
+    console.error(err);
   }
 };

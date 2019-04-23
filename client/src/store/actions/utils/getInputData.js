@@ -1,22 +1,29 @@
 import axios from "axios";
 import asyncLoop from "node-async-loop";
+import { ADD_INFO } from "../constants";
 
-export const getInputData = (fileId, sheetName) => {
+export const getInputData = (fileId, sheetName, dispatch) => {
   return new Promise(async (resolve, reject) => {
-    // get input data
-    const sheetData = await getSheetData(fileId, sheetName);
+    try {
+      // get input data
+      const sheetData = await getSheetData(fileId, sheetName);
+      dispatch({ type: ADD_INFO, payload: "Got sheet data" });
 
-    // get all labels
-    const labels = await getLabels();
+      // get all labels
+      const labels = await getLabels();
 
-    // get accounts
-    const accoutnsData = await getAccountsData();
+      // get accounts
+      const accoutnsData = await getAccountsData();
 
-    // get all threads
-    const threads = await getAllThreads(accoutnsData, labels);
-    console.log(threads.length, "got from gmail");
+      // get all threads
+      const threads = await getAllThreads(accoutnsData, labels, dispatch);
+      const payload = `Got ${threads.length} threads from gmail`;
+      dispatch({ type: ADD_INFO, payload });
 
-    resolve({ sheetData, threads });
+      resolve({ sheetData, threads });
+    } catch (err) {
+      reject(err);
+    }
   });
 };
 
@@ -51,7 +58,7 @@ function getAccountsData() {
 }
 
 // get all the threads
-function getAllThreads(accountsArr, labels) {
+function getAllThreads(accountsArr, labels, dispatch) {
   // construct query for getting target threads
   const labelNames = labels.map(label => label.name);
   const exclude = ["!SENT", "!pierre.martinow@idealsmail.com"];
@@ -116,7 +123,10 @@ function getAllThreads(accountsArr, labels) {
           },
           () => {
             // save account results in total results
-            console.log(account.email, accountArr.length);
+            dispatch({
+              type: ADD_INFO,
+              payload: `Got ${accountArr.length} threads from ${account.email}`
+            });
             threadsArr.push(...accountArr);
             nextAccount();
           }

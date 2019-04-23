@@ -1,8 +1,13 @@
-import { GET_LABELS, LABELS_IN_PROCESS } from "../actions/constants";
+import {
+  GET_LABELS,
+  LABELS_IN_PROCESS,
+  LABELS_ERROR
+} from "../actions/constants";
 
 const initialState = {
   inProcess: true,
-  labels: []
+  labels: [],
+  error: null
 };
 
 export default (state = initialState, action) => {
@@ -20,6 +25,13 @@ export default (state = initialState, action) => {
       return {
         ...state,
         inProcess: true
+      };
+
+    //error
+    case LABELS_ERROR:
+      return {
+        ...state,
+        error: action.payload
       };
 
     default:
