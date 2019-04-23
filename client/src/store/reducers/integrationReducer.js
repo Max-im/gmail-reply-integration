@@ -1,4 +1,4 @@
-import { ADD_INFO } from "../actions/constants";
+import { ADD_INFO, UPDATE_INFO } from "../actions/constants";
 
 const initialState = {
   actions: []
@@ -13,9 +13,15 @@ export default (state = initialState, action) => {
           ...state.actions,
           {
             text: action.payload,
-            type: action.payload === "error" ? "error" : "info"
+            type: action.meta === "error" ? "error" : "info"
           }
         ]
+      };
+
+    case UPDATE_INFO:
+      return {
+        ...state,
+        actions: []
       };
 
     default:

@@ -17,6 +17,8 @@ export const GET_FILES = "GET_FILES";
 export const FILES_ERROR = "FILES_ERROR";
 export const GET_SHEETS = "GET_SHEETS";
 export const SHEET_ERROR = "SHEET_ERROR";
+export const UPDATE_SHEETS = "UPDATE_SHEETS";
 
 // Messages
 export const ADD_INFO = "ADD_INFO";
+export const UPDATE_INFO = "UPDATE_INFO";

@@ -1,5 +1,11 @@
 import axios from "axios";
-import { GET_SHEETS, GET_FILES, SHEET_ERROR, FILES_ERROR } from "./constants";
+import {
+  GET_SHEETS,
+  GET_FILES,
+  SHEET_ERROR,
+  FILES_ERROR,
+  UPDATE_SHEETS
+} from "./constants";
 
 // get all user files
 export const getFiles = () => dispatch => {
@@ -19,6 +25,7 @@ export const getFiles = () => dispatch => {
 export const getSheets = id => async dispatch => {
   try {
     dispatch({ type: SHEET_ERROR, payload: null });
+    dispatch({ type: UPDATE_SHEETS });
     var { data: sheets } = await axios.get(`/input/file/${id}`);
     dispatch({ type: GET_SHEETS, payload: sheets });
   } catch (err) {

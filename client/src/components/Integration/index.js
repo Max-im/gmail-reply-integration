@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { withRouter } from "react-router-dom";
 import { onLaunch } from "../../store/actions/integration";
+import { withRouter, Link } from "react-router-dom";
 import "./style.scss";
 
 class Integration extends Component {
@@ -18,6 +18,7 @@ class Integration extends Component {
 
   render() {
     const { actions } = this.props.integration;
+    const { fileId } = this.props.match.params;
     return (
       <div className="page integration">
         <h1 className="display-4 text-center page__title">Integration</h1>
@@ -25,6 +26,16 @@ class Integration extends Component {
           <h3 className="bg-secondary text-center rounded text-white page__subtitle">
             Output data
           </h3>
+          <div className="integration__file">
+            <a
+              href={`https://docs.google.com/spreadsheets/d/${fileId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <i className="fas fa-file-excel" />
+              Open the File
+            </a>
+          </div>
           <ul className="actions">
             {actions.map((action, i) => (
               <li

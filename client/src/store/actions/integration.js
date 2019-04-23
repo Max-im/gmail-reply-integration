@@ -1,4 +1,4 @@
-import { ADD_INFO } from "./constants";
+import { ADD_INFO, UPDATE_INFO } from "./constants";
 import { getDbThreads } from "./utils/integration";
 import { getInputData } from "./utils/getInputData";
 import { output } from "./utils/output";
@@ -8,6 +8,7 @@ import { update } from "./utils/update";
 export const onLaunch = (fileId, sheetName) => async dispatch => {
   try {
     dispatch({ type: ADD_INFO, payload: "Start integration" });
+    dispatch({ type: UPDATE_INFO });
 
     // GET INPUT
     const inputData = await getInputData(fileId, sheetName, dispatch);
