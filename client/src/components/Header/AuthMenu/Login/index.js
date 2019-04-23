@@ -12,6 +12,7 @@ export class index extends Component {
   };
 
   render() {
+    console.log(client_id_user, scope_user);
     return (
       <>
         <GoogleAuthorize
