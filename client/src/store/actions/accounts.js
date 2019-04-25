@@ -14,6 +14,7 @@ export const getAccounts = () => dispatch => {
       if (err && err.response && err.response.data) {
         return dispatch({ type: ACCOUNTS_ERROR, payload: err.response.data });
       }
+      dispatch({ type: ACCOUNTS_ERROR, payload: "GET ACCOUNTS ERROR" });
       console.error(err);
     });
 };
@@ -34,6 +35,7 @@ export const createAccount = response => async dispatch => {
     if (err && err.response && err.response.data) {
       return dispatch({ type: ACCOUNTS_ERROR, payload: err.response.data });
     }
+    dispatch({ type: ACCOUNTS_ERROR, payload: "CREATE ACCOUNT ERROR" });
     console.error(err);
   }
 };
@@ -52,6 +54,7 @@ export const removeAccount = id => dispatch => {
       if (err && err.response && err.response.data) {
         return dispatch({ type: ACCOUNTS_ERROR, payload: err.response.data });
       }
+      dispatch({ type: ACCOUNTS_ERROR, payload: "REMOVE ACCOUNT ERROR" });
       console.error(err);
     });
 };

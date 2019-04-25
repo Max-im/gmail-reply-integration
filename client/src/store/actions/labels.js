@@ -11,6 +11,7 @@ export const getLabels = () => dispatch => {
       if (err && err.response && err.response.data) {
         return dispatch({ type: LABELS_ERROR, payload: err.response.data });
       }
+      dispatch({ type: LABELS_ERROR, payload: "LABEL ERROR" });
       console.error(err);
     });
 };
@@ -26,6 +27,7 @@ export const toggleCheck = id => dispatch => {
       if (err && err.response && err.response.data) {
         return dispatch({ type: LABELS_ERROR, payload: err.response.data });
       }
+      dispatch({ type: LABELS_ERROR, payload: "LABEL ERROR" });
       console.error(err);
     });
 };

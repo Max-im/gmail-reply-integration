@@ -17,6 +17,7 @@ export const getFiles = () => dispatch => {
       if (err && err.response && err.response.data) {
         return dispatch({ type: FILES_ERROR, payload: err.response.data });
       }
+      dispatch({ type: FILES_ERROR, payload: "FILES ERROR" });
       console.error(err);
     });
 };
@@ -32,6 +33,7 @@ export const getSheets = id => async dispatch => {
     if (err && err.response && err.response.data) {
       return dispatch({ type: SHEET_ERROR, payload: err.response.data });
     }
+    dispatch({ type: SHEET_ERROR, payload: "SHEET ERROR" });
     console.error(err);
   }
 };

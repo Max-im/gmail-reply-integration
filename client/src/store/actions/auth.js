@@ -36,6 +36,7 @@ export const onLogin = response => async dispatch => {
     if (err && err.response && err.response.data) {
       return dispatch({ type: AUTH_ERROR, payload: err.response.data });
     }
+    dispatch({ type: AUTH_ERROR, payload: "AUTH ERROR" });
     console.error(err);
   }
 };
@@ -52,6 +53,7 @@ export const onLogout = () => dispatch => {
     if (err && err.response && err.response.data) {
       return dispatch({ type: AUTH_ERROR, payload: err.response.data });
     }
+    dispatch({ type: AUTH_ERROR, payload: "LOGOUT ERROR" });
     console.error(err);
   }
 };

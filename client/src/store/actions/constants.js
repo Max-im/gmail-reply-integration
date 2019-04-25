@@ -22,3 +22,5 @@ export const UPDATE_SHEETS = "UPDATE_SHEETS";
 // Messages
 export const ADD_INFO = "ADD_INFO";
 export const UPDATE_INFO = "UPDATE_INFO";
+export const CHANGE_PROGRESS = "CHANGE_PROGRESS";
+export const TOGGLE_PROGRESS = "TOGGLE_PROGRESS";

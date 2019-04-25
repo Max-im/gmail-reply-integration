@@ -7,8 +7,8 @@ import { update } from "./utils/update";
 
 export const onLaunch = (fileId, sheetName) => async dispatch => {
   try {
-    dispatch({ type: ADD_INFO, payload: "Start integration" });
     dispatch({ type: UPDATE_INFO });
+    dispatch({ type: ADD_INFO, payload: "Start integration" });
 
     // GET INPUT
     const inputData = await getInputData(fileId, sheetName, dispatch);
@@ -36,6 +36,7 @@ export const onLaunch = (fileId, sheetName) => async dispatch => {
         meta: "error"
       });
     }
+    dispatch({ type: ADD_INFO, payload: "ERROR", meta: "error" });
     console.log(err);
   }
 };

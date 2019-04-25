@@ -2,8 +2,9 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { onLaunch } from "../../store/actions/integration";
-import { withRouter, Link } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import "./style.scss";
+import Progress from "../Progress";
 
 class Integration extends Component {
   componentDidMount() {
@@ -17,7 +18,7 @@ class Integration extends Component {
   };
 
   render() {
-    const { actions } = this.props.integration;
+    const { actions, showProgress } = this.props.integration;
     const { fileId } = this.props.match.params;
     return (
       <div className="page integration">
@@ -58,7 +59,7 @@ class Integration extends Component {
                   }
                 >
                   {action.type === "error" ? (
-                    <i class="fas fa-times" />
+                    <i className="fas fa-times" />
                   ) : (
                     <i className="fas fa-check" />
                   )}
@@ -66,6 +67,7 @@ class Integration extends Component {
               </li>
             ))}
           </ul>
+          {showProgress && <Progress />}
         </section>
       </div>
     );

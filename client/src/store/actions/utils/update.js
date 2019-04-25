@@ -1,7 +1,7 @@
 import axios from "axios";
 import asyncLoop from "node-async-loop";
 import { getDbThreads } from "./integration";
-import { ADD_INFO } from "../constants";
+import { ADD_INFO, TOGGLE_PROGRESS, CHANGE_PROGRESS } from "../constants";
 
 export const update = (threads, dbThreads, dispatch) => {
   return new Promise(async (resolve, reject) => {
@@ -20,14 +20,14 @@ export const update = (threads, dbThreads, dispatch) => {
       if (needToCreate.length > 0) {
         const payload = `Need to create ${needToCreate.length} threads`;
         dispatch({ type: ADD_INFO, payload });
-        await createDbThreads(needToCreate);
+        await createOrUpdate(needToCreate, "create", dispatch);
       }
 
       // update db data
       if (needToUpdate.length > 0) {
         const payload = `Need to update ${needToUpdate.length} threads`;
         dispatch({ type: ADD_INFO, payload });
-        await updateDbThreads(needToUpdate);
+        await createOrUpdate(needToUpdate, "update", dispatch);
       }
 
       // get gb threads
@@ -69,34 +69,38 @@ function removeOldDbThreads(needToRemove) {
   });
 }
 
-// create new threads
-function createDbThreads(needToCreate) {
-  return new Promise((resolve, reject) => {
-    asyncLoop(
-      needToCreate,
-      (thread, nextThread) => {
-        axios
-          .post("/integration/create-thread", { thread })
-          .then(() => nextThread())
-          .catch(err => reject(err));
-      },
-      () => resolve()
-    );
-  });
-}
+// create or update threads
+function createOrUpdate(arr, method, dispatch) {
+  let progressCounter = 0;
+  dispatch({ type: CHANGE_PROGRESS, payload: 0, meta: "" });
+  if (arr.length > 20) dispatch({ type: TOGGLE_PROGRESS, payload: true });
 
-// update existing threads
-function updateDbThreads(needToUpdate) {
   return new Promise((resolve, reject) => {
     asyncLoop(
-      needToUpdate,
+      arr,
       (thread, nextThread) => {
         axios
-          .post("/integration/update-thread", { thread })
-          .then(() => nextThread())
-          .catch(err => reject(err));
+          .post(`/integration/${method}-thread`, { thread })
+          .then(() => {
+            // change progress bar
+            progressCounter++;
+            dispatch({
+              type: CHANGE_PROGRESS,
+              payload: (progressCounter / arr.length) * 100,
+              meta: `${method}d ${progressCounter} from ${arr.length} threads`
+            });
+            nextThread();
+          })
+          .catch(err => {
+            dispatch({ type: TOGGLE_PROGRESS, payload: false });
+            dispatch({ type: CHANGE_PROGRESS, payload: 0, meta: "" });
+            reject(err);
+          });
       },
-      () => resolve()
+      () => {
+        dispatch({ type: TOGGLE_PROGRESS, payload: false });
+        resolve();
+      }
     );
   });
 }
