@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { onLogout } from "../../../../store/actions/auth";
 import "./style.scss";
 
-export class index extends Component {
+export class UserData extends Component {
   static propTypes = {
     onLogout: PropTypes.func.isRequired,
     auth: PropTypes.object.isRequired
@@ -29,4 +29,4 @@ const mapStateToProps = state => ({ auth: state.auth });
 export default connect(
   mapStateToProps,
   { onLogout }
-)(index);
+)(UserData);

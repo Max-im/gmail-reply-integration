@@ -6,7 +6,7 @@ import { client_id_user, scope_user } from "../../../../config";
 import { onLogin } from "../../../../store/actions/auth";
 import "./style.scss";
 
-export class index extends Component {
+export class Login extends Component {
   static propTypes = {
     onLogin: PropTypes.func.isRequired
   };
@@ -30,9 +30,7 @@ export class index extends Component {
   }
 }
 
-const mapStateToProps = state => ({});
-
 export default connect(
-  mapStateToProps,
+  null,
   { onLogin }
-)(index);
+)(Login);

@@ -22,10 +22,10 @@ import Integration from "../Integration";
 export default function index() {
   return (
     <Router>
-      <div className="app">
-        <Header />
+      <div className="app" data-test="app">
+        <Header data-test="app__header" />
 
-        <main className="main">
+        <main className="main" data-test="app__main">
           <div className="container">
             <Route exact path="/" component={Home} />
 
@@ -58,7 +58,7 @@ export default function index() {
           </div>
         </main>
 
-        <Footer />
+        <Footer data-test="app__footer" />
       </div>
     </Router>
   );
