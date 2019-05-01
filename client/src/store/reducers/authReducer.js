@@ -1,12 +1,12 @@
 import { SET_USER, AUTH_ERROR } from "../actions/constants";
 
-const initialState = {
+export const authState = {
   isAuth: false,
   user: {},
   error: null
 };
 
-export default (state = initialState, action) => {
+export default (state = authState, action) => {
   switch (action.type) {
     case SET_USER:
       return {
