@@ -6,7 +6,7 @@ export const getTokenFromCode = authData => {
     const headers = { "Content-Type": "application/x-www-form-urlencoded" };
     const params = { ...authData, grant_type: "authorization_code" };
 
-    axios
+    return axios
       .post(
         "https://www.googleapis.com/oauth2/v4/token",
         {},

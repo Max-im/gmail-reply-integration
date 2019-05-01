@@ -1,6 +1,6 @@
 import React from "react";
 import { shallow } from "enzyme";
-import { isRender, searchEl } from "../../../test/utils";
+import { isRender } from "../../../test/utils";
 import Footer from "./";
 
 describe("Footer", () => {
@@ -16,7 +16,9 @@ describe("Footer", () => {
     test("copyright", () => {
       const currentYear = new Date().getFullYear();
       const expectedText = `Copyright © ${currentYear}`;
-      expect(searchEl(footer, "footer__copyright").text()).toBe(expectedText);
+      expect(footer.find("[data-test='footer__copyright']").text()).toBe(
+        expectedText
+      );
     });
   });
 });

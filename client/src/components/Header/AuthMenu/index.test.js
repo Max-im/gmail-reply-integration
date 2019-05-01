@@ -1,6 +1,6 @@
 import React from "react";
 import { shallow } from "enzyme";
-import { isRender, isNotRender, searchEl } from "../../../../test/utils";
+import { isRender, isNotRender } from "../../../../test/utils";
 import { AuthMenu } from "./";
 
 describe("AuthMenu", () => {
@@ -43,7 +43,7 @@ describe("AuthMenu", () => {
     test("Login not renders", () => isNotRender(authMenu, "authMenu__login"));
     test("error renders", () => isRender(authMenu, "authMenu__error"));
     test("error text", () => {
-      expect(searchEl(authMenu, "authMenu__error").text()).toBe(error);
+      expect(authMenu.find("[data-test='authMenu__error']").text()).toBe(error);
     });
   });
 
@@ -60,7 +60,7 @@ describe("AuthMenu", () => {
     test("Login renders", () => isRender(authMenu, "authMenu__login"));
     test("error renders", () => isRender(authMenu, "authMenu__error"));
     test("error text", () => {
-      expect(searchEl(authMenu, "authMenu__error").text()).toBe(error);
+      expect(authMenu.find("[data-test='authMenu__error']").text()).toBe(error);
     });
   });
 });

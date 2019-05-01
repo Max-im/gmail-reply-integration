@@ -1,6 +1,10 @@
-import { shallow } from "enzyme";
-import { createStore } from "redux";
-import rootReducer from "../src/store/reducers";
+import configureStore from "redux-mock-store";
+import thunk from "redux-thunk";
+import { accountsState } from "../src/store/reducers/accountsReducer";
+import { authState } from "../src/store/reducers/authReducer";
+import { labelsState } from "../src/store/reducers/labelsReducer";
+import { inputState } from "../src/store/reducers/inputReducer";
+import { integrationState } from "../src/store/reducers/integrationReducer";
 
 /*
  * Check if the element was rendered properly
@@ -17,25 +21,17 @@ export const isNotRender = (component, attr) => {
 };
 
 /*
- * Search element by data-test attribute
+ * configure mock store for testing
  */
-export const searchEl = (component, attr) => {
-  return component.find(`[data-test="${attr}"]`);
-};
+export const getMockStore = () => {
+  const mockStore = configureStore([thunk]);
+  const store = mockStore({
+    accounts: { accountsState },
+    labels: { ...labelsState },
+    auth: { ...authState },
+    input: { ...inputState },
+    integration: { ...integrationState }
+  });
 
-export const renderComponent = (component, attr) => {
-  const wrapper = shallow(component);
-  const el = wrapper.find(`[data-test="${attr}"]`);
-  expect(el.length).toBe(1);
-};
-
-export const storeFactory = initState => {
-  const defaultState = {
-    auth: {},
-    labels: {},
-    accounts: {},
-    input: {},
-    integration: {}
-  };
-  return createStore(rootReducer, { ...defaultState, ...initState });
+  return store;
 };
