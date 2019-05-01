@@ -15,10 +15,19 @@ module.exports = accounts => {
         gmail.users.labels.list({ userId: "me" }, (err, res) => {
           if (err) return reject(err);
 
+          const exclude = [
+            "!SENT",
+            "!pierre.martinow@idealsmail.com",
+            "!Developable",
+            "!Not developable",
+            "!Process_Tags"
+          ];
+
           const labelsName = res.data.labels
             .filter(item => item.type === "user")
             .filter(item => item.name.match(/^!/))
             .filter(item => !item.name.match(/^!Campaign/g))
+            .filter(label => !exclude.includes(label.name))
             .map(label => ({
               id: label.id,
               email: account.email,

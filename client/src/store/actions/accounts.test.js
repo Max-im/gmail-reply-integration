@@ -36,13 +36,10 @@ describe("accounts actions", () => {
    */
   test("getAccounts() [error]", () => {
     const payload = "error Message";
-    const actions = [
-      { type: ACCOUNTS_ERROR, payload: null },
-      { type: ACCOUNTS_ERROR, payload }
-    ];
+    const actions = [{ type: ACCOUNTS_ERROR, payload }];
     moxios.stubRequest("/accounts", { status: 400, response: payload });
 
-    return store.dispatch(getAccounts()).catch(() => {
+    return store.dispatch(getAccounts()).then(() => {
       expect(actions).toEqual(store.getActions());
     });
   });
@@ -82,14 +79,41 @@ describe("accounts actions", () => {
    * createAccount() [success]
    */
   test("createAccount() [success]", () => {
-    // const expectedActions = [
-    //   { type: ACCOUNTS_IN_PROCESS },
-    //   { type: ACCOUNTS_ERROR, payload: null },
-    //   { type: ACCOUNTS_ERROR, payload: "error" }
-    // ];
-    // moxios.stubRequest(`/accounts`, { status: 200, response: "data" });
-    // return store.dispatch(createAccount({ code: "code" })).then(() => {
-    //   console.log(store.getActions())
-    // });
+    const expectedActions = [
+      { type: ACCOUNTS_IN_PROCESS },
+      { type: ACCOUNTS_ERROR, payload: null }
+    ];
+    moxios.stubRequest("/accounts", { status: 200, response: "data" });
+
+    return store.dispatch(createAccount({ code: "code" })).then(() => {
+      expect(expectedActions).toEqual(store.getActions());
+    });
+  });
+
+  /*
+   * createAccount() [error]
+   */
+  test("createAccount() [error]", () => {
+    const expectedActions = [
+      { type: ACCOUNTS_IN_PROCESS },
+      { type: ACCOUNTS_ERROR, payload: "errorData" }
+    ];
+    moxios.stubRequest("/accounts", { status: 400, response: "errorData" });
+
+    return store.dispatch(createAccount({ code: "code" })).then(() => {
+      expect(expectedActions).toEqual(store.getActions());
+    });
+  });
+
+  /*
+   * createAccount() [error code]
+   */
+  test("createAccount() [error code]", () => {
+    const expectedActions = [{ type: ACCOUNTS_ERROR, payload: "Invalid code" }];
+    moxios.stubRequest("/accounts", { status: 400 });
+
+    return store.dispatch(createAccount()).then(() => {
+      expect(expectedActions).toEqual(store.getActions());
+    });
   });
 });

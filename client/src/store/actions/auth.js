@@ -6,22 +6,26 @@ import {
   redirect_uri_user
 } from "../../config";
 import { SET_USER, AUTH_ERROR } from "./constants";
-import { getTokenFromCode, setAuthToken } from "./utils/auth";
+import { setAuthToken } from "./utils/auth";
 
 // login
 export const onLogin = response => async dispatch => {
-  try {
-    dispatch({ type: AUTH_ERROR, payload: null });
-    const { code } = response;
-    const authData = {
-      code,
-      client_id: client_id_user,
-      client_secret: client_secret_user,
-      redirect_uri: redirect_uri_user
-    };
-    const token = await getTokenFromCode(authData);
+  if (!response || !response.code) {
+    return dispatch({ type: AUTH_ERROR, payload: "Invalid code" });
+  }
 
-    axios.post("/auth/login", { token }).then(res => {
+  const { code } = response;
+  const authData = {
+    code,
+    client_id: client_id_user,
+    client_secret: client_secret_user,
+    redirect_uri: redirect_uri_user
+  };
+  dispatch({ type: AUTH_ERROR, payload: null });
+
+  return axios
+    .post("/auth/login", { authData })
+    .then(res => {
       const token = res.data;
       localStorage.setItem("outBandSales", token);
 
@@ -31,14 +35,14 @@ export const onLogin = response => async dispatch => {
       const decoded = jwt_decode(token);
 
       dispatch({ type: SET_USER, payload: decoded });
+    })
+    .catch(err => {
+      if (err && err.response && err.response.data) {
+        return dispatch({ type: AUTH_ERROR, payload: err.response.data });
+      }
+      dispatch({ type: AUTH_ERROR, payload: "AUTH ERROR" });
+      console.error(err);
     });
-  } catch (err) {
-    if (err && err.response && err.response.data) {
-      return dispatch({ type: AUTH_ERROR, payload: err.response.data });
-    }
-    dispatch({ type: AUTH_ERROR, payload: "AUTH ERROR" });
-    console.error(err);
-  }
 };
 
 // Logout

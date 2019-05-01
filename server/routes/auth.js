@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const getProfile = require("./utils/auth/getProfile");
+const getTokenFromCode = require("./utils/auth/getTokenFromCode");
+
 const { secretOrKey } = require("../config");
 const User = require("../model/User");
 
@@ -10,7 +12,8 @@ const User = require("../model/User");
 // @access  Public
 router.post("/login", async (req, res) => {
   try {
-    const { token } = req.body;
+    const { authData } = req.body;
+    const token = await getTokenFromCode(authData);
     const userData = await getProfile(token);
     const dbUser = await User.findOne({ id: userData.id });
 
