@@ -64,15 +64,9 @@ function getAllThreads(accountsArr, labels, dispatch) {
   const exclude = ["!SENT", "!pierre.martinow@idealsmail.com"];
   const queryArr = labelNames
     .filter(item => !exclude.includes(item))
-    .map(item => {
-      // if (item.indexOf(" ") === -1) {
-      return `label:${item}`;
-      // } else {
-      // return `label:"${item}"`;
-      // }
-    });
+    .map(item => `label:${item}`);
+
   const query = `{${queryArr.join(" ")}}`;
-  console.log(query);
 
   // loop arr
   const arr = [];

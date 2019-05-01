@@ -43,7 +43,7 @@ export default function index() {
             <Switch>
               <PrivatRoute
                 exact
-                path="/integration/file/:id"
+                path="/integration/file/:sheetName"
                 component={SelectSheet}
               />
             </Switch>

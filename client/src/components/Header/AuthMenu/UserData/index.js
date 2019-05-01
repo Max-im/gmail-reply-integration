@@ -13,11 +13,17 @@ export class UserData extends Component {
   render() {
     const { user } = this.props.auth;
     return (
-      <div className="userData">
-        <img src={user.picture} className="userData__avatar" alt={user.name} />
+      <div className="userData" data-test="userData">
+        <img
+          src={user.picture}
+          className="userData__avatar"
+          alt={user.name}
+          data-test="userData__img"
+        />
         <i
           className="fas fa-sign-out-alt userData__logout"
           onClick={this.props.onLogout}
+          data-test="userData__icon"
         />
       </div>
     );

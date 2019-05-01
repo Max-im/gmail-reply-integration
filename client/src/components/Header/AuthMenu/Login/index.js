@@ -15,6 +15,7 @@ export class Login extends Component {
     return (
       <>
         <GoogleAuthorize
+          data-test="login"
           clientId={client_id_user}
           className="login"
           accessType="offline"
