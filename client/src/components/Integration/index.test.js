@@ -1,7 +1,7 @@
 import React from "react";
 import { shallow } from "enzyme";
 import { isRender, isNotRender } from "../../../test/utils";
-import { Integration } from "./";
+import { Integration } from "./index";
 
 describe("Integration", () => {
   const fileId = "idOfTheFile";
@@ -9,7 +9,7 @@ describe("Integration", () => {
   const mockLaunch = jest.fn();
   const initProps = {
     onLaunch: mockLaunch,
-    integration: { actions: [], showProgress: true },
+    display: { actions: [], showProgress: true },
     match: { params: { fileId, sheetName } }
   };
 
@@ -57,7 +57,7 @@ describe("Integration", () => {
     ];
     const props = {
       ...initProps,
-      integration: { actions, showProgress: false }
+      display: { actions, showProgress: false }
     };
     const integration = shallow(<Integration {...props} />);
 

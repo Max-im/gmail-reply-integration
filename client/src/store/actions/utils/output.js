@@ -1,23 +1,28 @@
 import axios from "axios";
-import asyncLoop from "node-async-loop";
+import { ADD_INFO } from "../constants";
+import { errorHandle } from "./errorHandle";
+import store from "../../store";
 
-export const output = (targetThreads, fileId, sheetName) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const formated = formateIntegrationData(targetThreads);
-      await outputData(formated, fileId, sheetName);
-      resolve();
-    } catch (err) {
-      reject(err);
-    }
+const { getState } = store;
+
+export const output = (fileId, sheetName) => dispatch => {
+  dispatch({ type: ADD_INFO, payload: "Output data" });
+  const { compared } = getState().connect;
+
+  return new Promise(async resolve => {
+    const formated = formateIntegrationData(compared);
+    await outputData(formated, fileId, sheetName);
+
+    dispatch({ type: ADD_INFO, payload: "Success" });
+    resolve();
   });
 };
 
 // format data for output
-function formateIntegrationData(result) {
+function formateIntegrationData(compared) {
   const formated = [];
 
-  result.forEach(item => {
+  compared.forEach(item => {
     const theItem = [];
 
     // body
@@ -66,23 +71,16 @@ function formateIntegrationData(result) {
 
 // output data
 // output each column separatly, for reduce server load time
-function outputData(formated, fileId, sheetName) {
+async function outputData(formated, fileId, sheetName) {
   const arr = [];
   for (var i = 0; i < formated[0].length; i++) {
     arr.push(i);
   }
 
-  return new Promise((resolve, reject) => {
-    asyncLoop(
-      arr,
-      (col, nextCol) => {
-        const data = formated.map(item => item[col]);
-        axios
-          .post("/output/sheet", { fileId, sheetName, data })
-          .then(() => nextCol())
-          .catch(err => reject(err));
-      },
-      () => resolve()
-    );
-  });
+  for (let col of arr) {
+    const data = formated.map(item => item[col]);
+    await axios
+      .post("/output/sheet", { fileId, sheetName, data })
+      .catch(err => errorHandle(err, "Output error"));
+  }
 }

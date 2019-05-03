@@ -47,17 +47,8 @@ export const onLogin = response => async dispatch => {
 
 // Logout
 export const onLogout = () => dispatch => {
-  try {
-    if (!window.confirm("Do you want to Logout?")) return;
-    dispatch({ type: AUTH_ERROR, payload: null });
-    localStorage.removeItem("outBandSales");
-    setAuthToken(false);
-    dispatch({ type: SET_USER, payload: {} });
-  } catch (err) {
-    if (err && err.response && err.response.data) {
-      return dispatch({ type: AUTH_ERROR, payload: err.response.data });
-    }
-    dispatch({ type: AUTH_ERROR, payload: "LOGOUT ERROR" });
-    console.error(err);
-  }
+  dispatch({ type: AUTH_ERROR, payload: null });
+  localStorage.removeItem("outBandSales");
+  setAuthToken(false);
+  dispatch({ type: SET_USER, payload: {} });
 };

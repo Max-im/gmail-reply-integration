@@ -6,7 +6,16 @@ import { Progress } from "./";
 describe("Progress", () => {
   const progressVal = 81;
   const progressTitle = "test title of progress";
-  const props = { integration: { progress: progressVal, progressTitle } };
+
+  const props = {
+    display: {
+      actions: [],
+      showProgress: false,
+      progress: progressVal,
+      progressTitle
+    }
+  };
+
   const progress = shallow(<Progress {...props} />);
 
   describe("Render propertly", () => {

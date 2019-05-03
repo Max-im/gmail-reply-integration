@@ -64,4 +64,18 @@ describe("Auth actions", () => {
       expect(expectedActions).toEqual(store.getActions());
     });
   });
+
+  /*
+   * Logout [success]
+   */
+  test("Logout [success]", () => {
+    const expectedActions = [
+      { type: AUTH_ERROR, payload: null },
+      { type: SET_USER, payload: {} }
+    ];
+
+    store.dispatch(onLogout());
+    expect(axios.defaults.headers.common["Authorization"]).toBeUndefined();
+    expect(store.getActions()).toEqual(expectedActions);
+  });
 });

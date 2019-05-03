@@ -14,11 +14,11 @@ export class Integration extends Component {
 
   static propTypes = {
     onLaunch: PropTypes.func.isRequired,
-    integration: PropTypes.object.isRequired
+    display: PropTypes.object.isRequired
   };
 
   render() {
-    const { actions, showProgress } = this.props.integration;
+    const { actions, showProgress } = this.props.display;
     const { fileId } = this.props.match.params;
     return (
       <div className="page integration" data-test="integration">
@@ -98,7 +98,7 @@ export class Integration extends Component {
 }
 
 const mapStateToProps = state => ({
-  integration: state.integration
+  display: state.display
 });
 
 export default connect(

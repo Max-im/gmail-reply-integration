@@ -3,7 +3,8 @@ import { authState } from "./authReducer";
 import { inputState } from "./inputReducer";
 import { accountsState } from "./accountsReducer";
 import { labelsState } from "./labelsReducer";
-import { integrationState } from "./integrationReducer";
+import { connectState } from "./connectReducer";
+import { displayState } from "./displayReducer";
 
 describe("root reducer", () => {
   test("init root reducer", () => {
@@ -12,7 +13,8 @@ describe("root reducer", () => {
       labels: labelsState,
       accounts: accountsState,
       input: inputState,
-      integration: integrationState
+      connect: connectState,
+      display: displayState
     });
   });
 });

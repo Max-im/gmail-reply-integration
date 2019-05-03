@@ -10,6 +10,11 @@ export class UserData extends Component {
     auth: PropTypes.object.isRequired
   };
 
+  onLogout() {
+    if (!window.confirm("Do you want to Logout?")) return;
+    this.props.onLogout();
+  }
+
   render() {
     const { user } = this.props.auth;
     return (
@@ -22,7 +27,7 @@ export class UserData extends Component {
         />
         <i
           className="fas fa-sign-out-alt userData__logout"
-          onClick={this.props.onLogout}
+          onClick={this.onLogout.bind(this)}
           data-test="userData__icon"
         />
       </div>

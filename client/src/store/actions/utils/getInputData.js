@@ -1,133 +1,135 @@
 import axios from "axios";
-import asyncLoop from "node-async-loop";
-import { ADD_INFO } from "../constants";
+import { errorHandle } from "./errorHandle";
+import {
+  ADD_INFO,
+  CONNECT_SHEET_DATA,
+  CONNECT_GET_LABELS,
+  GET_ACCOUNTS,
+  CONNECT_GET_GMAIL_THREADS,
+  CONNECT_GET_DB_THREADS
+} from "../constants";
 
-export const getInputData = (fileId, sheetName, dispatch) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      // get input data
-      const sheetData = await getSheetData(fileId, sheetName);
-      dispatch({ type: ADD_INFO, payload: "Got sheet data" });
-
-      // get all labels
-      const labels = await getLabels();
-
-      // get accounts
-      const accoutnsData = await getAccountsData();
-
-      // get all threads
-      const threads = await getAllThreads(accoutnsData, labels, dispatch);
-      const payload = `Got ${threads.length} threads from gmail`;
-      dispatch({ type: ADD_INFO, payload });
-
-      resolve({ sheetData, threads });
-    } catch (err) {
-      reject(err);
-    }
-  });
+/** ======================================================================
+ * getSheetData()
+ * @param: fieldId      - id of the file, retrievs from url
+ * @param: sheetName    - name of the file sheet, retrievs from url
+ * @success             - dispatches sheet data into "connect" store
+ * @error               - dispatches error into "display" store
+ * ======================================================================
+ */
+export const getSheetData = (fileId, sheetName) => dispatch => {
+  return axios
+    .get(`/input/${fileId}/${sheetName}`)
+    .then(res => dispatch({ type: CONNECT_SHEET_DATA, payload: res.data }))
+    .catch(err => errorHandle(err, "Getting sheet data error"));
 };
 
-// get sheet data
-function getSheetData(fileId, sheetName) {
-  return new Promise((resolve, reject) => {
-    axios
-      .get(`/input/${fileId}/${sheetName}`)
-      .then(res => resolve(res.data))
-      .catch(err => reject(err));
-  });
-}
+/** ======================================================================
+ * getLabels()
+ * @success             - dispatches db labels into "connect" store
+ * @error               - dispatches error into "display" store
+ * ======================================================================
+ */
+export const getLabels = () => dispatch => {
+  return axios
+    .get("/labels")
+    .then(res => dispatch({ type: CONNECT_GET_LABELS, payload: res.data }))
+    .catch(err => errorHandle(err, "Getting Labels error"));
+};
 
-// get Labels
-function getLabels() {
-  return new Promise((resolve, reject) => {
-    axios
-      .get("/labels")
-      .then(res => resolve(res.data))
-      .catch(err => reject(err));
-  });
-}
+/** ======================================================================
+ * getAccountsData()
+ * @success             - dispatches db accounts data into "accounts" store
+ * @error               - dispatches error into "display" store
+ * ======================================================================
+ */
+export const getAccountsData = () => dispatch => {
+  return axios
+    .get("/accounts")
+    .then(res => dispatch({ type: GET_ACCOUNTS, payload: res.data }))
+    .catch(err => errorHandle(err, "Getting Accounts data error"));
+};
 
-// get accounts
-function getAccountsData() {
-  return new Promise((resolve, reject) => {
-    axios
-      .get("/accounts")
-      .then(res => resolve(res.data))
-      .catch(err => reject(err));
-  });
-}
+/** ======================================================================
+ * getAllGmailThreads()
+ * @success             - loop each account; Launch threadsLoop();
+ * @error               - dont handle errors in this level
+ * @target              - get all the threads for all accounts
+ */
+export const getAllGmailThreads = getState => async dispatch => {
+  const { accounts } = getState().accounts;
+  const q = constructQuery(getState);
 
-// get all the threads
-function getAllThreads(accountsArr, labels, dispatch) {
-  // construct query for getting target threads
-  const labelNames = labels.map(label => label.name);
-  const exclude = ["!SENT", "!pierre.martinow@idealsmail.com"];
-  const queryArr = labelNames
-    .filter(item => !exclude.includes(item))
-    .map(item => `label:${item}`);
+  for (let account of accounts) {
+    const options = { userId: "me", maxResults: 500, q };
+    const accountData = { accountArr: [], account };
+    await dispatch(threadsLoop({ options, accountData }));
+  }
+};
 
+/** ======================================================================
+ * constructQuery()
+ * @success             - consrtuct query for gmail request
+ * @error               - dont handle errors in this level
+ */
+const constructQuery = getState => {
+  const { dbLabels } = getState().connect;
+  const labelNames = dbLabels.map(label => label.name);
+  const queryArr = labelNames.map(item => `label:${item}`);
   const query = `{${queryArr.join(" ")}}`;
+  return query;
+};
 
+/** ======================================================================
+ * @name: threadsLoop();
+ * @success : dispatches particular account data into "connect" store
+ * @Error : dont handle errors in this level
+ * @target : launch getThreadBatch() while accountData.isDone !== ture;
+ */
+const threadsLoop = ({ options, accountData }) => async dispatch => {
   // loop arr
   const arr = [];
   for (var i = 0; i < 50; i++) {
     arr.push(i);
   }
+  const { accountArr, account } = accountData;
+  const { email, _id: id } = accountData.account;
 
-  // result arr
-  const threadsArr = [];
+  // loop
+  for (let page of arr) {
+    const data = await getThreadBatch(options, id, email);
+    const { threads, nextPageToken } = data;
 
-  return new Promise((resolve, reject) => {
-    // loop each account
-    asyncLoop(
-      accountsArr,
-      (account, nextAccount) => {
-        let isDone = false;
+    // save account id to get accoutn credentials for create or update
+    if (threads) accountArr.push(...threads.map(i => ({ ...i, uId: id })));
+    if (nextPageToken) options.pageToken = nextPageToken;
+    else break;
+  }
 
-        const accountArr = []; // account result arr
-        const options = { userId: "me", maxResults: 500, q: query };
-        const id = account._id;
+  const msg = `Got ${accountArr.length} threads from - ${account.email}`;
+  dispatch({ type: ADD_INFO, payload: msg });
+  dispatch({ type: CONNECT_GET_GMAIL_THREADS, payload: accountArr });
+};
 
-        // loop each page
-        asyncLoop(
-          arr,
-          (page, nextPage) => {
-            if (isDone) return nextPage();
+/** ======================================================================
+ * @name: getThreadBatch()
+ * @success             - dispatches particular account data into "connect" store
+ * @error               - dont handle errors in this level
+ */
+const getThreadBatch = (options, id, email) => {
+  return axios
+    .post("/integration/get-all-account-threads", { options, id })
+    .then(res => res.data)
+    .catch(err => errorHandle(err, `Error getting ${email} thread`));
+};
 
-            axios
-              .post(`/integration/get-all-account-threads`, {
-                options,
-                id
-              })
-              .then(res => {
-                const { threads, nextPageToken } = res.data;
-
-                if (threads) {
-                  // save account id to get accoutn credentials for create or update
-                  accountArr.push(...threads.map(i => ({ ...i, uId: id })));
-                }
-                if (nextPageToken) {
-                  options.pageToken = nextPageToken;
-                  nextPage();
-                } else {
-                  isDone = true;
-                  nextPage();
-                }
-              })
-              .catch(err => reject(err));
-          },
-          () => {
-            // save account results in total results
-            dispatch({
-              type: ADD_INFO,
-              payload: `Got ${accountArr.length} threads from ${account.email}`
-            });
-            threadsArr.push(...accountArr);
-            nextAccount();
-          }
-        );
-      },
-      () => resolve(threadsArr)
-    );
-  });
-}
+/** ======================================================================
+ * getDbThreads()
+ * @success - dispatches db threads into "connect" store
+ */
+export const getDbThreads = () => dispatch => {
+  return axios
+    .get("/integration/get-db-threads")
+    .then(res => dispatch({ type: CONNECT_GET_DB_THREADS, payload: res.data }))
+    .catch(err => errorHandle(err, "Error getting db threads"));
+};

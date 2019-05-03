@@ -4,6 +4,7 @@ import { isRender } from "../../../../../test/utils";
 import { UserData } from "./";
 
 describe("UserData", () => {
+  window.confirm = jest.fn(() => true);
   const mockLogout = jest.fn();
   const props = {
     auth: { user: { picture: "picture", name: "name" } },
@@ -19,6 +20,7 @@ describe("UserData", () => {
 
   describe("should onLogout by click", () => {
     userData.find("[data-test='userData__icon']").simulate("click");
+    expect(window.confirm).toBeCalled();
     expect(mockLogout).toHaveBeenCalled();
   });
 });

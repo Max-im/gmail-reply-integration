@@ -2,6 +2,14 @@ const { google } = require("googleapis");
 const asyncLoop = require("node-async-loop");
 const auth = require("../auth")("account");
 
+const exclude = [
+  "!SENT",
+  "!pierre.martinow@idealsmail.com",
+  "!Developable",
+  "!Not developable",
+  "!Process_Tags"
+];
+
 module.exports = accounts => {
   const labelsArr = [];
 
@@ -14,14 +22,6 @@ module.exports = accounts => {
 
         gmail.users.labels.list({ userId: "me" }, (err, res) => {
           if (err) return reject(err);
-
-          const exclude = [
-            "!SENT",
-            "!pierre.martinow@idealsmail.com",
-            "!Developable",
-            "!Not developable",
-            "!Process_Tags"
-          ];
 
           const labelsName = res.data.labels
             .filter(item => item.type === "user")
@@ -38,7 +38,7 @@ module.exports = accounts => {
           nextUser();
         });
       },
-      async () => {
+      () => {
         // filter unique labels
         const labels = labelsArr.filter((v, i, a) => a.indexOf(v) === i);
 

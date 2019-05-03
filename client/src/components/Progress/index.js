@@ -5,11 +5,16 @@ import "./style.scss";
 
 export class Progress extends Component {
   static propTypes = {
-    integration: PropTypes.object.isRequired
+    display: PropTypes.shape({
+      actions: PropTypes.array.isRequired,
+      showProgress: PropTypes.bool.isRequired,
+      progress: PropTypes.number.isRequired,
+      progressTitle: PropTypes.string.isRequired
+    }).isRequired
   };
 
   render() {
-    const { progress, progressTitle } = this.props.integration;
+    const { progress, progressTitle } = this.props.display;
     return (
       <div className="progressBar" data-test="progress">
         <div className="progressBar__inner">
@@ -30,7 +35,7 @@ export class Progress extends Component {
 }
 
 const mapStateToProps = state => ({
-  integration: state.integration
+  display: state.display
 });
 
 export default connect(mapStateToProps)(Progress);

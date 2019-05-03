@@ -4,24 +4,24 @@ import {
   TOGGLE_PROGRESS,
   CHANGE_PROGRESS
 } from "../actions/constants";
-import { integrationState } from "./integrationReducer";
-import integration from "./integrationReducer";
+import { displayState } from "./displayReducer";
+import display from "./displayReducer";
 
-describe("integrationReducer", () => {
+describe("displayReducer", () => {
   /*
    * ADD_INFO [error]
    */
   test("ADD_INFO [error]", () => {
     const newInfo = "new info";
     const actions = [1, 2, 3];
-    const modified = { ...integrationState, actions };
+    const modified = { ...displayState, actions };
     const expected = {
-      ...integrationState,
+      ...displayState,
       actions: [...actions, { text: newInfo, type: "error" }]
     };
 
     expect(
-      integration(modified, { type: ADD_INFO, payload: newInfo, meta: "error" })
+      display(modified, { type: ADD_INFO, payload: newInfo, meta: "error" })
     ).toEqual(expected);
   });
 
@@ -31,13 +31,13 @@ describe("integrationReducer", () => {
   test("ADD_INFO [info]", () => {
     const newInfo = "new info";
     const actions = [1, 2, 3];
-    const modified = { ...integrationState, actions };
+    const modified = { ...displayState, actions };
     const expected = {
-      ...integrationState,
+      ...displayState,
       actions: [...actions, { text: newInfo, type: "info" }]
     };
 
-    expect(integration(modified, { type: ADD_INFO, payload: newInfo })).toEqual(
+    expect(display(modified, { type: ADD_INFO, payload: newInfo })).toEqual(
       expected
     );
   });
@@ -46,19 +46,17 @@ describe("integrationReducer", () => {
    * UPDATE_INFO
    */
   test("UPDATE_INFO", () => {
-    const modified = { ...integrationState, actions: [5, 4, 6, 7] };
-    expect(integration(modified, { type: UPDATE_INFO })).toEqual(
-      integrationState
-    );
+    const modified = { ...displayState, actions: [5, 4, 6, 7] };
+    expect(display(modified, { type: UPDATE_INFO })).toEqual(displayState);
   });
 
   /*
    * TOGGLE_PROGRESS [true]
    */
   test("TOGGLE_PROGRESS [true]", () => {
-    const expected = { ...integrationState, showProgress: true };
+    const expected = { ...displayState, showProgress: true };
     expect(
-      integration(undefined, { type: TOGGLE_PROGRESS, payload: true })
+      display(undefined, { type: TOGGLE_PROGRESS, payload: true })
     ).toEqual(expected);
   });
 
@@ -66,10 +64,10 @@ describe("integrationReducer", () => {
    * TOGGLE_PROGRESS [false]
    */
   test("TOGGLE_PROGRESS [false]", () => {
-    const modified = { ...integrationState, showProgress: true };
+    const modified = { ...displayState, showProgress: true };
     expect(
-      integration(modified, { type: TOGGLE_PROGRESS, payload: false })
-    ).toEqual(integrationState);
+      display(modified, { type: TOGGLE_PROGRESS, payload: false })
+    ).toEqual(displayState);
   });
 
   /*
@@ -79,12 +77,12 @@ describe("integrationReducer", () => {
     const newNum = 81;
     const newTitle = "newTitle";
     const expected = {
-      ...integrationState,
+      ...displayState,
       progress: newNum,
       progressTitle: newTitle
     };
     expect(
-      integration(undefined, {
+      display(undefined, {
         type: CHANGE_PROGRESS,
         payload: newNum,
         meta: newTitle

@@ -37,12 +37,14 @@
     ]
   },
   "devDependencies": {
+    "babel-jest": "^24.7.1",
     "enzyme": "^3.9.0",
     "enzyme-adapter-react-16": "^1.12.1",
     "jest": "^24.7.1",
     "jest-cli": "^24.7.1",
     "moxios": "^0.4.0",
     "node-sass": "^4.11.0",
+    "redux-devtools-extension": "^2.13.8",
     "redux-mock-store": "^1.5.3"
   },
   "proxy": "http://localhost:5000"

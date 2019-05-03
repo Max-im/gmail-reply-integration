@@ -19,7 +19,7 @@ import SelectFile from "../SelectFile";
 import SelectSheet from "../SelectSheet";
 import Integration from "../Integration";
 
-export default function index() {
+export default function App() {
   return (
     <Router>
       <div className="app" data-test="app">
