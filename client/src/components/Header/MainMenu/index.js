@@ -13,8 +13,8 @@ export class MainMenu extends Component {
   render() {
     const { isAuth } = this.props.auth;
     return (
-      <ul className="navbar-nav">
-        <li className="nav-item ">
+      <ul className="navbar-nav" data-test="mainMenu">
+        <li className="nav-item" data-test="mainMenu__home">
           <Link className="nav-link" to="/">
             <img
               style={{ width: "30px" }}
@@ -26,7 +26,7 @@ export class MainMenu extends Component {
 
         {isAuth && (
           <>
-            <li className="nav-item ">
+            <li className="nav-item" data-test="mainMenu__settings">
               <NavLink
                 className="nav-link"
                 to="/settings"
@@ -35,7 +35,7 @@ export class MainMenu extends Component {
                 Settings
               </NavLink>
             </li>
-            <li className="nav-item">
+            <li className="nav-item" data-test="mainMenu__integration">
               <NavLink
                 className="nav-link"
                 to="/integration/file"

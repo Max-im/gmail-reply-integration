@@ -13,9 +13,17 @@ export class AuthMenu extends Component {
   render() {
     const { isAuth, error } = this.props.auth;
     return (
-      <div className="auth">
-        {isAuth ? <UserData /> : <Login />}
-        {error && <p className="auth__error error">{error}</p>}
+      <div className="auth" data-test="authMenu">
+        {isAuth ? (
+          <UserData data-test="authMenu__userData" />
+        ) : (
+          <Login data-test="authMenu__login" />
+        )}
+        {error && (
+          <p className="auth__error error" data-test="authMenu__error">
+            {error}
+          </p>
+        )}
       </div>
     );
   }

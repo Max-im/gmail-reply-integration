@@ -4,6 +4,14 @@ import auth from "./authReducer";
 import accounts from "./accountsReducer";
 import labels from "./labelsReducer";
 import input from "./inputReducer";
-import integration from "./integrationReducer";
+import display from "./displayReducer";
+import connect from "./connectReducer";
 
-export default combineReducers({ auth, labels, accounts, input, integration });
+export default combineReducers({
+  auth,
+  labels,
+  accounts,
+  input,
+  display,
+  connect
+});

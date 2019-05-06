@@ -3,19 +3,27 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import "./style.scss";
 
-export class index extends Component {
+export class Progress extends Component {
   static propTypes = {
-    integration: PropTypes.object.isRequired
+    display: PropTypes.shape({
+      actions: PropTypes.array.isRequired,
+      showProgress: PropTypes.bool.isRequired,
+      progress: PropTypes.number.isRequired,
+      progressTitle: PropTypes.string.isRequired
+    }).isRequired
   };
 
   render() {
-    const { progress, progressTitle } = this.props.integration;
+    const { progress, progressTitle } = this.props.display;
     return (
-      <div className="progressBar">
+      <div className="progressBar" data-test="progress">
         <div className="progressBar__inner">
-          <h3 className="progressBar__title">{progressTitle}</h3>
-          <div className="progress">
+          <h3 className="progressBar__title" data-test="progress__title">
+            {progressTitle}
+          </h3>
+          <div className="progress" data-test="progress__wrapper">
             <div
+              data-test="progress__field"
               className="progress-bar progressBar__field"
               style={{ width: `${progress}%` }}
             />
@@ -27,7 +35,7 @@ export class index extends Component {
 }
 
 const mapStateToProps = state => ({
-  integration: state.integration
+  display: state.display
 });
 
-export default connect(mapStateToProps)(index);
+export default connect(mapStateToProps)(Progress);

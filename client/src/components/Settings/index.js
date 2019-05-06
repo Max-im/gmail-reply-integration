@@ -6,7 +6,7 @@ import Overlay from "../General/Overlay";
 import AccountsControl from "./AccountsControl";
 import LabelsControl from "./LabelsControl";
 
-class Settings extends Component {
+export class Settings extends Component {
   static propTypes = {
     labels: PropTypes.object.isRequired,
     accounts: PropTypes.object.isRequired
@@ -16,12 +16,18 @@ class Settings extends Component {
     const { inProcess: lablInProcess } = this.props.labels;
     const { inProcess: accInProcess } = this.props.accounts;
     const isReady = !accInProcess && !lablInProcess;
+
     return (
-      <div className="page">
-        <h1 className="display-4 text-center page__title">Settings</h1>
-        <AccountsControl />
-        <LabelsControl />
-        {!isReady && <Overlay />}
+      <div className="page" data-test="settings">
+        <h1
+          className="display-4 text-center page__title"
+          data-test="settings__title"
+        >
+          Settings
+        </h1>
+        <AccountsControl data-test="settings__accounts" />
+        <LabelsControl data-test="settings__labels" />
+        {!isReady && <Overlay data-test="settings__overlay" />}
       </div>
     );
   }

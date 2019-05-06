@@ -6,7 +6,7 @@ import {
   UPDATE_SHEETS
 } from "../actions/constants";
 
-const initialState = {
+export const inputState = {
   files: [],
   filesReady: false,
   filesError: null,
@@ -15,7 +15,7 @@ const initialState = {
   sheetError: null
 };
 
-export default (state = initialState, action) => {
+export default (state = inputState, action) => {
   switch (action.type) {
     case GET_FILES:
       return {

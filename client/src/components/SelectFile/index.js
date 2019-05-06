@@ -3,8 +3,8 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import Overlay from "../General/Overlay";
-import "./style.scss";
 import { getFiles } from "../../store/actions/input";
+import "./style.scss";
 
 export class FilesList extends Component {
   state = { search: "", onSearch: false };
@@ -40,19 +40,27 @@ export class FilesList extends Component {
         textMessage = "Files not found";
       } else {
         textMessage = (
-          <p>
+          <span>
             <b>"{search}"</b> not found
-          </p>
+          </span>
         );
       }
     }
 
     return (
-      <div className="page selectFile">
-        <h1 className="display-4 text-center page__title">Select File</h1>
+      <div className="page selectFile" data-test="filesList">
+        <h1
+          className="display-4 text-center page__title"
+          data-test="filesList__title"
+        >
+          Select File
+        </h1>
 
         <section className="section container selectFile">
-          <h3 className="bg-secondary text-center rounded text-white page__subtitle">
+          <h3
+            className="bg-secondary text-center rounded text-white page__subtitle"
+            data-test="filesList__subtitle"
+          >
             {filesReady ? (
               <span>Found {filtred.length} files</span>
             ) : (
@@ -64,6 +72,7 @@ export class FilesList extends Component {
             <>
               {/* input */}
               <label
+                data-test="filesList__input"
                 className={
                   "fileList__search" +
                   (onSearch ? " fileList__search_active" : "")
@@ -77,6 +86,7 @@ export class FilesList extends Component {
                   value={this.state.search}
                   className="fileList__searchForm form-control"
                   placeholder="Enter the name"
+                  data-test="filesList__field"
                   onFocus={() => this.setState({ onSearch: true })}
                   onBlur={() => this.setState({ onSearch: false })}
                   onChange={e =>
@@ -86,12 +96,17 @@ export class FilesList extends Component {
               </label>
 
               {/* files list */}
-              <ul className="fileList">
+              <ul className="fileList" data-test="filesList__list">
                 {filtred
                   .sort((a, b) => (a.name > b.name ? 1 : -1))
                   .map(item => (
-                    <li key={item.id} className="fileList__item">
+                    <li
+                      key={item.id}
+                      className="fileList__item"
+                      data-test="filesList__item"
+                    >
                       <Link
+                        data-test="filesList__link"
                         className="fileList__text"
                         to={`/integration/file/${item.id}`}
                       >
@@ -105,6 +120,7 @@ export class FilesList extends Component {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="fileList__id"
+                        data-test="filesList__outLink"
                       >
                         {item.id}
                       </a>
@@ -113,20 +129,24 @@ export class FilesList extends Component {
               </ul>
             </>
           )}
-          <p>{textMessage}</p>
+
+          <p data-test="filesList__searchMsg">{textMessage}</p>
+
+          {/* Error */}
           {filesError && (
-            <p className="error selectFile__error">{filesError}</p>
+            <p className="error selectFile__error" data-test="filesList__error">
+              {filesError}
+            </p>
           )}
         </section>
-        {!filesReady && <Overlay />}
+        {!filesReady && <Overlay data-test="filesList__overlay" />}
       </div>
     );
   }
 }
 
 const mapStateToProps = state => ({
-  input: state.input,
-  accounts: state.accounts
+  input: state.input
 });
 
 export default connect(

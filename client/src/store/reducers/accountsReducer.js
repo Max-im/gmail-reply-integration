@@ -4,13 +4,13 @@ import {
   ACCOUNTS_ERROR
 } from "../actions/constants";
 
-const initialState = {
+export const accountsState = {
   inProcess: true,
   accounts: [],
   error: null
 };
 
-export default (state = initialState, action) => {
+export default (state = accountsState, action) => {
   switch (action.type) {
     // fetch accounts
     case GET_ACCOUNTS:

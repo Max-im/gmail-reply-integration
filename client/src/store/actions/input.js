@@ -10,7 +10,7 @@ import {
 // get all user files
 export const getFiles = () => dispatch => {
   dispatch({ type: FILES_ERROR, payload: null });
-  axios
+  return axios
     .get("/input/files")
     .then(res => dispatch({ type: GET_FILES, payload: res.data }))
     .catch(err => {
@@ -23,17 +23,19 @@ export const getFiles = () => dispatch => {
 };
 
 // get selected file sheets
-export const getSheets = id => async dispatch => {
-  try {
-    dispatch({ type: SHEET_ERROR, payload: null });
-    dispatch({ type: UPDATE_SHEETS });
-    var { data: sheets } = await axios.get(`/input/file/${id}`);
-    dispatch({ type: GET_SHEETS, payload: sheets });
-  } catch (err) {
-    if (err && err.response && err.response.data) {
-      return dispatch({ type: SHEET_ERROR, payload: err.response.data });
-    }
-    dispatch({ type: SHEET_ERROR, payload: "SHEET ERROR" });
-    console.error(err);
-  }
+export const getSheets = id => dispatch => {
+  if (!id) return dispatch({ type: SHEET_ERROR, payload: "invalid sheet id" });
+  dispatch({ type: SHEET_ERROR, payload: null });
+  dispatch({ type: UPDATE_SHEETS });
+
+  return axios
+    .get(`/input/file/${id}`)
+    .then(res => dispatch({ type: GET_SHEETS, payload: res.data }))
+    .catch(err => {
+      if (err && err.response && err.response.data) {
+        return dispatch({ type: SHEET_ERROR, payload: err.response.data });
+      }
+      dispatch({ type: SHEET_ERROR, payload: "SHEET ERROR" });
+      console.error(err);
+    });
 };

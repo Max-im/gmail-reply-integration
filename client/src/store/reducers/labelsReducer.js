@@ -4,13 +4,13 @@ import {
   LABELS_ERROR
 } from "../actions/constants";
 
-const initialState = {
+export const labelsState = {
   inProcess: true,
   labels: [],
   error: null
 };
 
-export default (state = initialState, action) => {
+export default (state = labelsState, action) => {
   switch (action.type) {
     // fetch labels
     case GET_LABELS:

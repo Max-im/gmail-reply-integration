@@ -1,106 +1,97 @@
 import axios from "axios";
-import asyncLoop from "node-async-loop";
-import { getDbThreads } from "./integration";
-import { ADD_INFO, TOGGLE_PROGRESS, CHANGE_PROGRESS } from "../constants";
+import { errorHandle } from "./errorHandle";
 
-export const update = (threads, dbThreads, dispatch) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const compareResult = compareThreadsWithDb(threads, dbThreads);
-      const { needToCreate, needToUpdate, needToRemove } = compareResult;
+import {
+  ADD_INFO,
+  TOGGLE_PROGRESS,
+  CHANGE_PROGRESS,
+  CONNECT_NEED_TO_CREATE,
+  CONNECT_NEED_TO_UPDATE,
+  CONNECT_NEED_TO_DELETE
+} from "../constants";
+import store from "../../store";
 
-      // remove old
-      if (needToRemove.length > 0) {
-        const payload = `Need to remove ${needToRemove.length} threads`;
-        dispatch({ type: ADD_INFO, payload });
-        await removeOldDbThreads(needToRemove);
-      }
+const { getState } = store;
 
-      // create new
-      if (needToCreate.length > 0) {
-        const payload = `Need to create ${needToCreate.length} threads`;
-        dispatch({ type: ADD_INFO, payload });
-        await createOrUpdate(needToCreate, "create", dispatch);
-      }
+/** ======================================================================
+ * @description compares db threads with new fetched gmail threads retrieves needToCreate, needToUpdate and needToDelete arrs
+ * @success dispatches needToCreate, needToUpdate and needToDelete into "connect" store
+ */
+export const compareThreadsWithDb = () => dispatch => {
+  const { dbThreads, gmailThreads } = getState().connect;
 
-      // update db data
-      if (needToUpdate.length > 0) {
-        const payload = `Need to update ${needToUpdate.length} threads`;
-        dispatch({ type: ADD_INFO, payload });
-        await createOrUpdate(needToUpdate, "update", dispatch);
-      }
-
-      // get gb threads
-      const idUpdated = needToCreate.length === 0 && needToUpdate.length === 0;
-      const actualThreads = idUpdated ? await getDbThreads() : dbThreads;
-      dispatch({ type: ADD_INFO, payload: "All data is updated" });
-
-      resolve(actualThreads);
-    } catch (err) {
-      reject(err);
-    }
-  });
-};
-
-// retrieve updated threads only
-function compareThreadsWithDb(threads, dbThreads) {
   const dbIds = dbThreads.map(item => item.id);
-  const threadIds = threads.map(item => item.id);
+  const threadIds = gmailThreads.map(item => item.id);
 
-  const needToCreate = threads.filter(item => !dbIds.includes(item.id));
-  const needToRemove = dbThreads.filter(item => !threadIds.includes(item.id));
-  const needToUpdate = threads.filter(item => {
+  // need to create
+  const needToCreate = gmailThreads.filter(item => !dbIds.includes(item.id));
+  if (needToCreate.length > 0) {
+    dispatch({ type: CONNECT_NEED_TO_CREATE, payload: needToCreate });
+    const msg = `Need to create ${needToCreate.length} threads`;
+    dispatch({ type: ADD_INFO, payload: msg });
+  }
+
+  // need to update
+  const needToUpdate = gmailThreads.filter(item => {
     const dbItem = dbThreads.find(db => db.id === item.id);
     if (!dbItem) return false;
     return dbItem.historyId !== item.historyId;
   });
+  if (needToUpdate.length > 0) {
+    dispatch({ type: CONNECT_NEED_TO_UPDATE, payload: needToUpdate });
+    const msg = `Need to update ${needToUpdate.length} threads`;
+    dispatch({ type: ADD_INFO, payload: msg });
+  }
 
-  return { needToCreate, needToUpdate, needToRemove };
-}
+  // need to delete
+  const needToDelete = dbThreads.filter(item => !threadIds.includes(item.id));
+  if (needToDelete.length > 0) {
+    dispatch({ type: CONNECT_NEED_TO_DELETE, payload: needToDelete });
+  }
+};
 
-// remove old db threads
-function removeOldDbThreads(needToRemove) {
-  return new Promise((resolve, reject) => {
-    const removeIdArr = needToRemove.map(item => item.id);
-    axios
-      .post(`/integration/delete-thread`, { removeIdArr })
-      .then(() => resolve())
-      .catch(err => reject(err));
+/** ======================================================================
+ * @description remove old threads from db
+ */
+export const removeOldDbThreads = () => {
+  const removeIdArr = getState().connect.needToDelete.map(item => item.id);
+  return axios
+    .post(`/integration/delete-thread`, { removeIdArr })
+    .catch(err => errorHandle(err, "Error removing old db threads"));
+};
+
+/** ======================================================================
+ * @description Loop threads for Creating or updating depends on method
+ * @argument {string} method can be one of "Create" or "Update" because theese are names of "connect" store and backend API
+ */
+export const createOrUpdate = method => async dispatch => {
+  const arr = getState().connect[`needTo${method}`];
+  const count = counter();
+  const len = arr.length;
+
+  for (let thread of arr) {
+    await dispatch(createOrUpdateItem(method, thread));
+    // update progress bar
+    const progress = count();
+    const payload = (progress / len) * 100;
+    const meta = `${method}d ${progress} from ${len} threads`;
+    dispatch({ type: CHANGE_PROGRESS, payload, meta });
+  }
+};
+
+/** ======================================================================
+ * @description Creat or update depends on method
+ * @argument {string} method can be one of "Create" or "Update" because theese are names of "connect" store and backend API
+ */
+export const createOrUpdateItem = (method, thread) => dispatch => {
+  return axios.post(`/integration/${method}-thread`, { thread }).catch(err => {
+    dispatch({ type: TOGGLE_PROGRESS, payload: false });
+    dispatch({ type: CHANGE_PROGRESS, payload: 0, meta: "" });
+    errorHandle(err, `Error ${method} thread ${thread.id}`);
   });
-}
+};
 
-// create or update threads
-function createOrUpdate(arr, method, dispatch) {
-  let progressCounter = 0;
-  dispatch({ type: CHANGE_PROGRESS, payload: 0, meta: "" });
-  if (arr.length > 20) dispatch({ type: TOGGLE_PROGRESS, payload: true });
-
-  return new Promise((resolve, reject) => {
-    asyncLoop(
-      arr,
-      (thread, nextThread) => {
-        axios
-          .post(`/integration/${method}-thread`, { thread })
-          .then(() => {
-            // change progress bar
-            progressCounter++;
-            dispatch({
-              type: CHANGE_PROGRESS,
-              payload: (progressCounter / arr.length) * 100,
-              meta: `${method}d ${progressCounter} from ${arr.length} threads`
-            });
-            nextThread();
-          })
-          .catch(err => {
-            dispatch({ type: TOGGLE_PROGRESS, payload: false });
-            dispatch({ type: CHANGE_PROGRESS, payload: 0, meta: "" });
-            reject(err);
-          });
-      },
-      () => {
-        dispatch({ type: TOGGLE_PROGRESS, payload: false });
-        resolve();
-      }
-    );
-  });
-}
+const counter = () => {
+  let count = 0;
+  return () => count++;
+};

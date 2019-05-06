@@ -5,14 +5,14 @@ import {
   CHANGE_PROGRESS
 } from "../actions/constants";
 
-const initialState = {
+export const displayState = {
   actions: [],
   showProgress: false,
   progress: 0,
   progressTitle: "Title"
 };
 
-export default (state = initialState, action) => {
+export default (state = displayState, action) => {
   switch (action.type) {
     case ADD_INFO:
       return {

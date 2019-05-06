@@ -14,7 +14,7 @@ router.post("/sheet", isLogged, async (req, res) => {
     const { user } = req;
     const token = jwt.verify(user.token, secretOrKey);
     await outputSheetData(token, fileId, sheetName, data);
-    res.json();
+    res.end();
   } catch (err) {
     console.error(err, "\n========\n Output data Error \n========\n");
     res.status(400).json("Output data Error");

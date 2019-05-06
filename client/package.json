@@ -5,7 +5,6 @@
   "dependencies": {
     "axios": "^0.18.0",
     "jwt-decode": "^2.2.0",
-    "node-async-loop": "^1.2.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-google-authorize": "^1.0.4",
@@ -37,7 +36,15 @@
     ]
   },
   "devDependencies": {
-    "node-sass": "^4.11.0"
+    "babel-jest": "^24.7.1",
+    "enzyme": "^3.9.0",
+    "enzyme-adapter-react-16": "^1.12.1",
+    "jest": "^24.7.1",
+    "jest-cli": "^24.7.1",
+    "moxios": "^0.4.0",
+    "node-sass": "^4.11.0",
+    "redux-devtools-extension": "^2.13.8",
+    "redux-mock-store": "^1.5.3"
   },
   "proxy": "http://localhost:5000"
 }

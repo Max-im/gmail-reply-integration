@@ -2,7 +2,7 @@ const { google } = require("googleapis");
 const auth = require("../auth")("user");
 const asyncLoop = require("node-async-loop");
 
-module.exports = token => {
+module.exports = async token => {
   auth.setCredentials(token);
   const drive = google.drive({ version: "v3", auth });
   const result = [];
@@ -10,6 +10,7 @@ module.exports = token => {
   for (var i = 0; i < 1000; i++) {
     arr.push(i);
   }
+  let isDone = false;
 
   const options = {
     q: `(mimeType contains 'excel' or mimeType contains 'spreadsheet') and trashed=false`,
@@ -17,20 +18,22 @@ module.exports = token => {
   };
 
   return new Promise((resolve, reject) => {
-    asyncLoop(arr, (page, nextPage) => {
-      drive.files.list(options, (err, res) => {
-        if (err) return reject(err);
+    asyncLoop(
+      arr,
+      (page, nextPage) => {
+        if (isDone) return nextPage();
 
-        const { files, nextPageToken } = res.data;
-        if (files) result.push(...files);
+        drive.files.list(options, (err, res) => {
+          if (err) return reject(err);
 
-        if (nextPageToken) {
-          options.pageToken = nextPageToken;
+          const { files, nextPageToken } = res.data;
+          if (files) result.push(...files);
+          if (nextPageToken) options.pageToken = nextPageToken;
+          else isDone = true;
           nextPage();
-        } else {
-          resolve(result);
-        }
-      });
-    });
+        });
+      },
+      () => resolve(result)
+    );
   });
 };

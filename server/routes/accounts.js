@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const getProfile = require("./utils/auth/getProfile");
+const getTokenFromCode = require("./utils/auth/getTokenFromCode");
 const isLogged = require("../middlevares/isLogged");
 const { secretOrKey } = require("../config");
 const Accounts = require("../model/Accounts");
@@ -12,6 +13,7 @@ const ThreadsMap = require("../model/ThreadsMap");
 // @access  Private
 router.get("/", isLogged, async (req, res) => {
   try {
+    console.log("get launched");
     const accounts = await Accounts.find();
     const formated = Array.from(accounts).map(account => {
       const { _id, email, picture, name } = account;
@@ -29,7 +31,8 @@ router.get("/", isLogged, async (req, res) => {
 // @access  Private
 router.post("/", isLogged, async (req, res) => {
   try {
-    const { token } = req.body;
+    const { authData } = req.body;
+    const token = await getTokenFromCode(authData);
     const profile = await getProfile(token);
     const theAccount = await Accounts.findOne({ id: profile.id });
     // return error
@@ -44,7 +47,7 @@ router.post("/", isLogged, async (req, res) => {
   }
 });
 
-// @route   DELETE settings/:id
+// @route   DELETE accounts/:id
 // @desc    Remove Account by id
 // @access  Private
 router.delete("/:id", isLogged, async (req, res) => {
@@ -59,6 +62,10 @@ router.delete("/:id", isLogged, async (req, res) => {
     console.error(err, "\n===========\nError deleting account\n===========\n");
     res.status(400).json("Error deleting account");
   }
+});
+
+router.get("/t", () => {
+  res.json("test");
 });
 
 module.exports = router;

@@ -1,33 +1,23 @@
 import axios from "axios";
+import { errorHandle } from "./errorHandle";
+import { CONNECT_GET_LABEL_MAP, CONNECT_GET_COMPRED } from "../constants";
+import store from "../../store";
 
-export const compare = (actualThreads, sheetData) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      // get all labels
-      const labelsMap = await getAccountsLabels();
+const { getState } = store;
 
-      // compare with input data
-      const targetThreads = compareInputData(
-        actualThreads,
-        sheetData,
-        labelsMap
-      );
-      resolve(targetThreads);
-    } catch (err) {
-      reject(err);
-    }
-  });
-};
-
-// filter target threads
-function compareInputData(actualThreads, emailArr, labels) {
+/** ======================================================================
+ * compareWithSheetData(sheetData)
+ * @description compare db threads with sheet data
+ */
+export const compareWithSheetData = () => dispatch => {
+  const { sheetData, dbThreads, labelMap } = getState().connect;
   // filter by people
-  const byPeople = emailArr.map(item => {
-    return actualThreads.filter(thread => thread.people.includes(item));
+  const byPeople = sheetData.map(item => {
+    return dbThreads.filter(thread => thread.people.includes(item));
   });
 
   // construct labels ids
-  const targetLabelsIds = labels.map(label => label.id);
+  const targetLabelsIds = labelMap.map(label => label.id);
 
   // filater by labels
   const byLabels = byPeople.map(threadsArr => {
@@ -40,18 +30,19 @@ function compareInputData(actualThreads, emailArr, labels) {
         ...thread,
         labels: thread.labels
           .filter(label => targetLabelsIds.includes(label))
-          .map(label => labels.find(dbLab => dbLab.id === label).name)
+          .map(label => labelMap.find(dbLab => dbLab.id === label).name)
       }));
   });
-  return byLabels;
-}
 
-// get labels map
-function getAccountsLabels() {
-  return new Promise((resolve, reject) => {
-    axios
-      .get("/labels/target-labels-map")
-      .then(res => resolve(res.data))
-      .catch(err => reject(err));
-  });
-}
+  dispatch({ type: CONNECT_GET_COMPRED, payload: byLabels });
+};
+
+/**
+ * getLabelsMap()
+ */
+export const getLabelsMap = () => dispatch => {
+  return axios
+    .get("/labels/target-labels-map")
+    .then(res => dispatch({ type: CONNECT_GET_LABEL_MAP, payload: res.data }))
+    .catch(err => errorHandle(err, "Error getting labels map"));
+};

@@ -1,28 +1,33 @@
 import axios from "axios";
-import asyncLoop from "node-async-loop";
+import { ADD_INFO } from "../constants";
+import { errorHandle } from "./errorHandle";
 
-export const output = (targetThreads, fileId, sheetName) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const formated = formateIntegrationData(targetThreads);
-      await outputData(formated, fileId, sheetName);
-      resolve();
-    } catch (err) {
-      reject(err);
-    }
-  });
+export const output = (fileId, sheetName, getState) => async dispatch => {
+  dispatch({ type: ADD_INFO, payload: "Output data" });
+  const { compared } = getState().connect;
+  const formated = formateIntegrationData(compared);
+
+  const arr = [];
+  for (var i = 0; i < formated[0].length; i++) {
+    arr.push(i);
+  }
+
+  for (let col of arr) {
+    const data = formated.map(item => item[col]);
+    await outputData(data, fileId, sheetName);
+  }
+  dispatch({ type: ADD_INFO, payload: "Success" });
 };
 
 // format data for output
-function formateIntegrationData(result) {
+export const formateIntegrationData = compared => {
   const formated = [];
 
-  result.forEach(item => {
-    const theItem = [];
-
+  compared.forEach(item => {
     // body
-    const body = [];
-    item.forEach(thread => body.push(thread.body));
+    const bodyArr = [];
+    item.forEach(thread => bodyArr.push(thread.body));
+    const body = bodyArr.join("\n===============\n");
 
     // labels
     const labels = [];
@@ -32,9 +37,7 @@ function formateIntegrationData(result) {
       })
     );
 
-    theItem[0] = body.join("\n===============\n");
-    theItem.push(...labels.map(item => item));
-    formated.push(theItem);
+    formated.push([body, ...labels]);
   });
 
   // header
@@ -62,27 +65,13 @@ function formateIntegrationData(result) {
   });
 
   return resultArr;
-}
+};
 
 // output data
 // output each column separatly, for reduce server load time
-function outputData(formated, fileId, sheetName) {
-  const arr = [];
-  for (var i = 0; i < formated[0].length; i++) {
-    arr.push(i);
-  }
-
-  return new Promise((resolve, reject) => {
-    asyncLoop(
-      arr,
-      (col, nextCol) => {
-        const data = formated.map(item => item[col]);
-        axios
-          .post("/output/sheet", { fileId, sheetName, data })
-          .then(() => nextCol())
-          .catch(err => reject(err));
-      },
-      () => resolve()
-    );
-  });
-}
+export const outputData = (data, fileId, sheetName) => {
+  return axios
+    .post("/output/sheet", { fileId, sheetName, data })
+    .then(res => res.data)
+    .catch(err => errorHandle(err, "Output error"));
+};

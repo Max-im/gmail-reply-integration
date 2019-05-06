@@ -1,9 +1,8 @@
 node_modules
-server/config/dev.js
+server/variables.env
+
 
 client/etc
 client/node_modules/
 client/.env
 client/src/config
-
-**/*.test.js
