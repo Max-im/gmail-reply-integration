@@ -7,7 +7,8 @@ import {
   CONNECT_NEED_TO_UPDATE,
   CONNECT_NEED_TO_DELETE,
   CONNECT_GET_LABEL_MAP,
-  CONNECT_GET_COMPRED
+  CONNECT_GET_COMPRED,
+  CONNECT_UPDATE
 } from "../actions/constants";
 
 export const connectState = {
@@ -53,6 +54,9 @@ export default (state = connectState, action) => {
 
     case CONNECT_GET_COMPRED:
       return { ...state, compared: action.payload };
+
+    case CONNECT_UPDATE:
+      return { ...connectState };
 
     default:
       return state;

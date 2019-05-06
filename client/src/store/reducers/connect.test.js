@@ -7,7 +7,8 @@ import {
   CONNECT_NEED_TO_UPDATE,
   CONNECT_NEED_TO_DELETE,
   CONNECT_GET_LABEL_MAP,
-  CONNECT_GET_COMPRED
+  CONNECT_GET_COMPRED,
+  CONNECT_UPDATE
 } from "../actions/constants";
 
 import { connectState } from "./connectReducer";
@@ -147,5 +148,17 @@ describe("Connect reducer", () => {
         { type: CONNECT_GET_COMPRED, payload: compared }
       )
     ).toEqual(expectedResult);
+  });
+
+  /**
+   * @CONNECT_UPDATE
+   */
+  test("CONNECT_UPDATE", () => {
+    expect(
+      connect(
+        undefined,
+        { type: CONNECT_UPDATE }
+      )
+    ).toEqual(connectState);
   });
 });

@@ -162,4 +162,35 @@ describe("utils/getInputData", () => {
         .catch(err => expect(err).toEqual(errMsg));
     });
   });
+
+  /**
+   * getDbThreads() [success]
+   */
+  test("getDbThreads() [success]", () => {
+    const payload = ["dbThread1", "dbThread2"];
+    const expectedActions = [{ type: CONNECT_GET_DB_THREADS, payload }];
+    moxios.stubRequest("/integration/get-db-threads", {
+      status: 200,
+      response: payload
+    });
+
+    return store.dispatch(getDbThreads()).then(() => {
+      expect(expectedActions).toEqual(store.getActions());
+    });
+  });
+
+  /**
+   * getDbThreads() [error]
+   */
+  test("getDbThreads [error]", () => {
+    const errMsg = "db threads error msg";
+    moxios.stubRequest("/integration/get-db-threads", {
+      status: 400,
+      response: errMsg
+    });
+
+    return store.dispatch(getDbThreads()).catch(err => {
+      expect(err).toEqual(errMsg);
+    });
+  });
 });

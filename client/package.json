@@ -5,7 +5,6 @@
   "dependencies": {
     "axios": "^0.18.0",
     "jwt-decode": "^2.2.0",
-    "node-async-loop": "^1.2.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-google-authorize": "^1.0.4",

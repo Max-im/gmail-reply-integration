@@ -2,7 +2,8 @@ import {
   ADD_INFO,
   UPDATE_INFO,
   CHANGE_PROGRESS,
-  TOGGLE_PROGRESS
+  TOGGLE_PROGRESS,
+  CONNECT_UPDATE
 } from "./constants";
 import {
   getLabels,
@@ -23,6 +24,7 @@ export const onLaunch = (fileId, sheetName) => async (dispatch, getState) => {
   if (!fileId || !sheetName) return;
   dispatch({ type: UPDATE_INFO });
   dispatch({ type: ADD_INFO, payload: "Start integration" });
+  dispatch({ type: CONNECT_UPDATE });
 
   try {
     /** ======================================================================
@@ -142,7 +144,7 @@ export const onLaunch = (fileId, sheetName) => async (dispatch, getState) => {
      * @description OUTPUT data row by row
      */
 
-    await dispatch(output(fileId, sheetName));
+    await dispatch(output(fileId, sheetName, getState));
   } catch (err) {
     if (typeof err === "string") {
       dispatch({ type: ADD_INFO, payload: err, meta: "error" });
